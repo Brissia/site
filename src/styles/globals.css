@@ -1,0 +1,253 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* ------------------------------------------------------------------
+   Design tokens. Source: Brissia Benavente Design System.
+   Components only use the semantic names below, never raw hex values.
+------------------------------------------------------------------- */
+
+:root {
+  --background: #ffffff;
+  --foreground: #111111;
+  --muted: #5f6368;
+  --border: #eaeaea;
+  --card: #fafafa;
+  --hover: #f3f3f3;
+  --map-filter: grayscale(1) contrast(0.92) brightness(1.04);
+  color-scheme: light;
+}
+
+/* Dark: matte paper on OLED, not pure black. */
+[data-theme="dark"] {
+  --background: #050505;
+  --foreground: #f5f5f5;
+  --muted: #a3a3a3;
+  --border: #232323;
+  --card: #101010;
+  --hover: #171717;
+  --map-filter: grayscale(1) invert(1) contrast(0.86) brightness(0.72);
+  color-scheme: dark;
+}
+
+/* Without JavaScript the system preference still applies. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --background: #050505;
+    --foreground: #f5f5f5;
+    --muted: #a3a3a3;
+    --border: #232323;
+    --card: #101010;
+    --hover: #171717;
+    --map-filter: grayscale(1) invert(1) contrast(0.86) brightness(0.72);
+    color-scheme: dark;
+  }
+}
+
+/* Future-ready: high contrast. */
+@media (prefers-contrast: more) {
+  :root {
+    --muted: #2b2b2b;
+    --border: #111111;
+  }
+  [data-theme="dark"] {
+    --muted: #e0e0e0;
+    --border: #f5f5f5;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-hover: var(--hover);
+
+  --font-display: var(--font-newsreader), "Iowan Old Style", Georgia, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", monospace;
+
+  --ease-editorial: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 250ms ease-out, color 250ms ease-out;
+  }
+
+  ::selection {
+    background: var(--foreground);
+    color: var(--background);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--foreground);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* 12-column grid with large margins. Mobile is a single reading column. */
+  :root {
+    --gutter: 1.5rem;
+    --shell: 82rem;
+  }
+  @media (min-width: 48rem) {
+    :root {
+      --gutter: 2.5rem;
+    }
+  }
+  @media (min-width: 80rem) {
+    :root {
+      --gutter: 4rem;
+    }
+  }
+  .shell {
+    width: 100%;
+    max-width: var(--shell);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+  /* For full-bleed compositions: content starts on the shell's left edge. */
+  .shell-start {
+    padding-left: max(var(--gutter), calc((100vw - var(--shell)) / 2 + var(--gutter)));
+    padding-right: var(--gutter);
+  }
+
+  .grid-12 {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 1.5rem;
+  }
+
+  /* Mono is reserved for metadata: dates, places, reading time, coordinates. */
+  .meta {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .link-quiet {
+    text-decoration: underline;
+    text-decoration-color: var(--border);
+    text-underline-offset: 0.3em;
+    transition: text-decoration-color 200ms ease-out;
+  }
+  .link-quiet:hover {
+    text-decoration-color: var(--foreground);
+  }
+}
+
+/* Long-form reading. Unlayered on purpose so it wins over the typography plugin defaults. */
+.prose-editorial {
+  --tw-prose-body: var(--foreground);
+  --tw-prose-headings: var(--foreground);
+  --tw-prose-links: var(--foreground);
+  --tw-prose-bold: var(--foreground);
+  --tw-prose-quotes: var(--foreground);
+  --tw-prose-quote-borders: var(--foreground);
+  --tw-prose-counters: var(--muted);
+  --tw-prose-bullets: var(--muted);
+  --tw-prose-hr: var(--border);
+  --tw-prose-captions: var(--muted);
+  --tw-prose-code: var(--foreground);
+  color: var(--foreground);
+  /* Emoji in the text render in monochrome, like everything else on the page. */
+  filter: grayscale(1);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  max-width: 38rem;
+}
+.prose-editorial :where(h2, h3) {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 1.75em;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--foreground);
+}
+.prose-editorial :where(blockquote) {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.35em;
+  line-height: 1.35;
+  border-left-width: 1px;
+}
+/* Quotations keep the author's own quotation marks; none are added. */
+.prose-editorial blockquote p::before,
+.prose-editorial blockquote p::after {
+  content: none;
+}
+.prose-editorial :where(a) {
+  text-decoration-color: var(--muted);
+  text-underline-offset: 0.25em;
+  font-weight: 400;
+}
+@media (min-width: 48rem) {
+  .prose-editorial {
+    font-size: 1.1875rem;
+  }
+}
+
+/* Map: OpenStreetMap tiles rendered in monochrome to match the system. */
+.atlas-map .leaflet-tile-pane {
+  filter: var(--map-filter);
+}
+.atlas-map.leaflet-container {
+  background: var(--card);
+  font-family: var(--font-sans);
+}
+.atlas-map .leaflet-popup-content-wrapper,
+.atlas-map .leaflet-popup-tip {
+  background: var(--background);
+  color: var(--foreground);
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px var(--border);
+}
+.atlas-map .leaflet-popup-content {
+  margin: 0.75rem 1rem;
+}
+.atlas-map .leaflet-popup-content a {
+  color: var(--foreground);
+}
+.atlas-map .leaflet-control-attribution {
+  background: var(--background);
+  color: var(--muted);
+  font-size: 10px;
+}
+.atlas-map .leaflet-control-attribution a {
+  color: var(--muted);
+}
+.atlas-map .leaflet-bar a {
+  background: var(--background);
+  color: var(--foreground);
+  border-color: var(--border);
+}

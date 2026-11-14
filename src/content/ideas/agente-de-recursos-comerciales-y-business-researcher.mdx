@@ -1,0 +1,84 @@
+---
+title: "Así Cree mi Agente de \"Recursos Comerciales\" + Business Researcher"
+description: "Crear una skill en Claude orquestando 3 agentes, paso a paso."
+category: "Article"
+publishedDate: 2026-04-07
+language: "es"
+tags: ["ai", "automation", "growth"]
+draft: true
+---
+
+En el post anterior te conté [Cómo migrar de Chat GPT a Claude](https://brissia-benavente.notion.site/C-mo-migrar-de-Chat-GPT-a-Claude-32f96e69590080d5a419f98aafd074b6) sin perder contexto ni memoria. Hoy te cuento qué hice después de migrar.
+
+Hace unas semanas estaba en proceso de contratar a un diseñador gráfico corporativo. El objetivo: desarrollar todos los recursos comerciales de [Ciudata](https://www.linkedin.com/company/ciudata-io/). Presentaciones ejecutivas, decks de ventas, one pagers por vertical de negocio, por país, por buyer persona. El trabajo era enorme. Y el nivel de personalización que necesitaba era todavía más grande. Al final no encontré un diseñador gráfico que se acomode a mis expectativas y decidí...
+
+Crear una skill en Claude orquestando 3 agentes. Y en este artículo te explico el paso a paso.
+
+---
+
+## OK Bri, pero qué es una skill?
+
+Una skill es un agente especializado al que le defines un rol, un contexto y reglas de comportamiento. Le dices quién es, qué sabe, cómo debe responder y qué restricciones tiene. A partir de ahí, ese agente opera siempre con ese marco. No tienes que repetirle el contexto cada vez. El ejemplo de este artículo: la skill de Recursos Comerciales sabe que trabaja para Ciudata, conoce cada vertical, cada buyer persona y cada país donde operamos.
+
+Un plugin es una conexión entre Claude y una herramienta externa. Notion, Google Drive, tu CRM, tu calendario. No es el agente en sí —es el puente que le da acceso a información o capacidades que están fuera de la conversación. Combinado con una skill, el agente no solo sabe qué hacer, sino que también puede ir a buscar la información donde vive.
+
+Y finalmente un artefacto es el output que Claude genera y te entrega como archivo. Un deck en PowerPoint, un one pager en Word, un reporte en PDF. No es texto en el chat. Es un documento real que puedes abrir, editar y enviar. La skill de Recursos Comerciales no solo me da texto bonito en pantalla —me entrega el archivo editable.
+
+Yo configuré dos:
+
+1. **Recursos Comerciales** — genera presentaciones, decks y one pagers hiperpersonalizados para cada vertical, país y buyer persona de Ciudata.
+2. **Business Researcher** — investiga prospectos y sus ejecutivos antes de cualquier reunión comercial.
+
+---
+
+## Parte 1: El Agente de Recursos Comerciales
+
+- Abre Claude y en el panel lateral izquierdo busca la sección **"Proyectos"** → haz clic en **"Nuevo proyecto"**
+- Ponle un nombre de tu empresa o proyecto pues!
+- Dentro del proyecto, ve a **"Instrucciones del proyecto"** — este es el cerebro de tu agente. Aquí defines quién es, qué sabe y cómo debe comportarse.
+- Escribe las instrucciones. Piensa en esto como el brief que le darías a un diseñador o consultor de primer día. Debe incluir: Qué es la empresa y a qué se dedicaCuáles son los productos o servicios que ofreceA quién le vende (verticales, países, buyer personas)Qué tipo de documentos va a producir, el tono, la estructura y el nivel de personalización que esperas, restricciones de marca (colores, tipografías, mensajes clave)
+
+> 💡 Entre más específico seas aquí, menos correcciones necesitarás después. Yo incluí ejemplos reales de presentaciones anteriores para que el agente entienda el estándar que espero.
+
+- Ahora carga tus archivos de conocimiento. Ve a la sección de **"Archivos"** dentro del proyecto y sube:Tu guía de marca (brand book o brand guidelines) Plantillas o decks anteriores en PDF. Descripciones de tus verticales de negocio. Perfiles de tus buyer personas, cualquier documento de positioning o messaging que tengas.
+- Guarda el proyecto y abre un chat dentro de él. Empieza con una instrucción concreta como:
+
+> *"Crea un one pager para el vertical de retail en Colombia. El interlocutor es un Chief Revenue Officer. Enfócate en casos de uso de geolocalización para optimización de puntos de venta y expansión territorial."*
+
+- Revisa el output. La primera vez puede necesitar ajustes. Si algo no está alineado, corrige las instrucciones del proyecto — no el chat. Así el aprendizaje queda persistente para todas las conversaciones futuras.
+
+---
+
+## Parte 2: El Business Researcher
+
+Este fue el agente que más me sorprendió. Lo configuré para que investigue a los prospectos y sus ejecutivos antes de cualquier reunión comercial. Ahora entro a cada call con contexto real: quién es la persona, qué ha publicado, qué prioridades tiene su empresa, qué noticias recientes la afectan.
+
+- Crea habilidades
+- En las instrucciones del proyecto define su rol con precisión:
+
+> 💡 Puedes usar este prompt como base para las instrucciones:
+
+- También puedes cargar aquí archivos con tu propuesta de valor, casos de uso por industria y una descripción detallada de tu ICP (Ideal Customer Profile). Así el agente no solo investiga al prospecto, sino que ya conecta esa información con tu solución.
+- Para usarlo, simplemente abre un chat dentro del proyecto y escribe:
+
+> *"Investiga a \[Nombre del ejecutivo\], \[Cargo\] en \[Empresa\]. Tengo una reunión con él el próximo jueves."*
+
+- El agente te entrega el brief completo. Tú llegas a la reunión con contexto. No con suposiciones.
+
+---
+
+## El resultado real
+
+Antes de esto, preparar un deck personalizado me tomaba varias horas —y eso asumiendo que tenía un diseñador disponible. Hoy le doy al agente el contexto del prospecto, la vertical y el país, y en minutos tengo un documento listo para revisar y ajustar.
+
+No es automatización por automatización.
+
+Es capacidad de hiperpersonalización a escala.
+
+La diferencia entre un deck genérico y uno que el prospecto siente que fue hecho exactamente para él —esa diferencia la hace el contexto. Y el contexto ahora lo gestiona el agente.
+
+---
+
+Ya en otro artículo les hablo sobre cómo conectar estos proyectos con herramientas externas como Notion, Google Drive y cómo configurar flujos de trabajo más complejos con Cowork.
+
+Xoxo B
