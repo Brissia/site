@@ -12,6 +12,8 @@ import type {
   SearchDocument,
   Tag,
   Talk,
+  TimelineEntry,
+  ToolkitItem,
 } from "@/types/content";
 import { getDictionary, type Lang } from "@/i18n";
 import { countWords, formatDate, tagSlug } from "@/utils/format";
@@ -143,6 +145,53 @@ export function getExperiments(): Experiment[] {
   return visible(items);
 }
 
+/** Frameworks, templates and tools, in the order of their file names. */
+export function getToolkitItems(): ToolkitItem[] {
+  const items = readCollection("toolkit").map(({ slug, data, body }): ToolkitItem => {
+    const r = <T,>(k: string) => required<T>("toolkit", slug, data, k);
+    return {
+      slug,
+      collection: "toolkit",
+      url: `/toolkit/${slug}`,
+      body,
+      draft: data.draft === true,
+      title: r("title"),
+      description: r("description"),
+      format: r("format"),
+      audience: data.audience === "people" ? "people" : "companies",
+      download: optional(data.download),
+      downloadLabel: optional(data.downloadLabel),
+      link: optional(data.link),
+      linkLabel: optional(data.linkLabel),
+      tags: list(data.tags),
+      related: list(data.related),
+      language: optional(data.language) ?? "es",
+    };
+  });
+  return visible(items).sort((a, b) => a.title.localeCompare(b.title));
+}
+
+/** The career timeline, most recent first. Written in the frontmatter of src/content/timeline.mdx. */
+export function getTimeline(): TimelineEntry[] {
+  const { data } = matter(fs.readFileSync(path.join(ROOT, "timeline.mdx"), "utf8"));
+  return list<Record<string, unknown>>(data.entries)
+    .map((e, i): TimelineEntry => {
+      for (const key of ["start", "title", "organization", "type"]) {
+        if (!e[key]) fail("content", "timeline", `entry ${i + 1} is missing "${key}"`);
+      }
+      return {
+        start: date(e.start),
+        end: e.end ? date(e.end) : undefined,
+        title: String(e.title),
+        organization: String(e.organization),
+        place: optional(e.place),
+        type: e.type as TimelineEntry["type"],
+        note: optional(e.note),
+      };
+    })
+    .sort((a, b) => byDateDesc(a.end ?? "9999", b.end ?? "9999") || byDateDesc(a.start, b.start));
+}
+
 /** Talks, panels, podcasts and interviews, most recent first. */
 export function getTalks(): Talk[] {
   const items = readCollection("talks").map(({ slug, data }): Talk => {
@@ -219,10 +268,11 @@ export const getArticle = (slug: string) => getArticles().find((a) => a.slug ===
 export const getAtlasEntry = (slug: string) => getAtlasEntries().find((a) => a.slug === slug);
 export const getExperiment = (slug: string) => getExperiments().find((e) => e.slug === slug);
 export const getLibraryItem = (slug: string) => getLibraryItems().find((l) => l.slug === slug);
+export const getToolkitItem = (slug: string) => getToolkitItems().find((t) => t.slug === slug);
 
 /** Every published piece, in section order. */
 export function getAllContent(): AnyContent[] {
-  return [...getArticles(), ...getAtlasEntries(), ...getExperiments(), ...getLibraryItems(), ...getJournalEntries()];
+  return [...getArticles(), ...getAtlasEntries(), ...getExperiments(), ...getLibraryItems(), ...getJournalEntries(), ...getToolkitItems()];
 }
 
 /* ---------------------------------------------------------- relationships */
@@ -259,6 +309,7 @@ function outgoingRefs(item: AnyContent): string[] {
         ...item.relatedProjects.map((s) => `experiments/${s}`),
       ];
     case "experiments":
+    case "toolkit":
       return item.related;
     case "library":
       return [...item.related, ...item.relatedIdeas.map((s) => `ideas/${s}`)];
@@ -304,6 +355,7 @@ export function contentSummary(item: AnyContent): string {
   switch (item.collection) {
     case "ideas":
     case "experiments":
+    case "toolkit":
       return item.description;
     case "atlas":
       return item.notes;
@@ -316,7 +368,7 @@ export function contentSummary(item: AnyContent): string {
 
 /** Language of a piece when it declares one, for the lang attribute. */
 export function contentLanguage(item: AnyContent): string | undefined {
-  return item.collection === "ideas" || item.collection === "journal" ? item.language : undefined;
+  return item.collection === "ideas" || item.collection === "journal" || item.collection === "toolkit" ? item.language : undefined;
 }
 
 /* --------------------------------------------------------- recommendations */
@@ -390,7 +442,7 @@ export function getContentForTag(slug: string): { tag: Tag; items: AnyContent[] 
 /** Section names in the interface language. */
 export function sectionNames(lang: Lang): Record<Collection, string> {
   const nav = getDictionary(lang).nav;
-  return { ideas: nav.ideas, atlas: nav.nomading, experiments: nav.experiments, library: nav.library, journal: nav.journal, talks: nav.speaking };
+  return { ideas: nav.ideas, atlas: nav.nomading, experiments: nav.experiments, library: nav.library, journal: nav.journal, talks: nav.speaking, toolkit: nav.toolkit };
 }
 
 /** Body text without Markdown marks, capped so the search page stays light. */
@@ -439,6 +491,14 @@ export function getSearchIndex(lang: Lang = "en"): SearchDocument[] {
       section: SECTION.library,
       tags: [...l.tags, l.type],
       meta: l.author,
+    })),
+    ...getToolkitItems().map((t) => ({
+      title: t.title,
+      description: t.description,
+      text: plainText(t.body),
+      url: t.url,
+      section: SECTION.toolkit,
+      tags: [...t.tags, t.format],
     })),
     ...getJournalEntries().map((j) => ({
       title: j.title,

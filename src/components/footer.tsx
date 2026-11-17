@@ -53,7 +53,7 @@ export function Footer({ lang = "en" }: { lang?: Lang }) {
     { label: t.footer.calendar, href: site.social.calendar },
   ].filter((l) => l.href);
   return (
-    <footer>
+    <footer className="print:hidden">
       <Newsletter lang={lang} />
       <div className="border-t border-border">
         <div className="shell flex flex-col gap-6 py-8 text-[13px] text-muted md:flex-row md:items-center md:justify-between">

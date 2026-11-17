@@ -1,13 +1,13 @@
 import type { MetadataRoute } from "next";
 import { languages, localize } from "@/i18n";
-import { getArticles, getAtlasEntries, getExperiments, getLibraryItems, getTags, getTalks } from "@/lib/content";
+import { getArticles, getAtlasEntries, getExperiments, getLibraryItems, getTags, getTalks, getToolkitItems } from "@/lib/content";
 import { absoluteUrl } from "@/lib/seo";
 
 type Entry = { path: string; priority: number; lastModified?: string };
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const entries: Entry[] = [
-    ...["/", "/nomading", "/ideas", "/experiments", "/library", "/journal", ...(getTalks().length > 0 ? ["/speaking"] : []), "/about", "/graph", "/tags"].map((path) => ({
+    ...["/", "/nomading", "/ideas", "/experiments", "/library", "/journal", ...(getTalks().length > 0 ? ["/speaking"] : []), "/about", "/about/timeline", "/companies", "/people", "/toolkit", "/graph", "/tags"].map((path) => ({
       path,
       priority: path === "/" ? 1 : 0.7,
     })),
@@ -15,6 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...getAtlasEntries().map((p) => ({ path: p.url, priority: 0.6 })),
     ...getExperiments().map((e) => ({ path: e.url, priority: 0.6 })),
     ...getLibraryItems().map((l) => ({ path: l.url, priority: 0.5 })),
+    ...getToolkitItems().map((t) => ({ path: t.url, priority: 0.6 })),
     ...getTags().map((t) => ({ path: `/tags/${t.slug}`, priority: 0.4 })),
   ];
   // Every page exists in both interface languages; each one points at the other.

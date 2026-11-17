@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
       beforeFiles: [
         { source: "/", destination: "/en" },
         {
-          source: "/:path((?!es/|es$|en/|en$|_next/|images/|feed\\.xml$|robots\\.txt$|sitemap\\.xml$|icon\\.svg$|favicon\\.ico$).+)",
+          source: "/:path((?!es/|es$|en/|en$|_next/|images/|downloads/|feed\\.xml$|robots\\.txt$|sitemap\\.xml$|icon\\.svg$|favicon\\.ico$).+)",
           destination: "/en/:path",
         },
       ],
