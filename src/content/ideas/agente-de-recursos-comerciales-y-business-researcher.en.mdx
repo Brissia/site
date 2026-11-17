@@ -1,0 +1,79 @@
+---
+title: "How I built my \"Sales Materials\" agent + Business Researcher"
+description: "Creating a skill in Claude that orchestrates 3 agents, step by step."
+---
+
+In the previous post I told you [how to migrate from ChatGPT to Claude](https://brissia-benavente.notion.site/C-mo-migrar-de-Chat-GPT-a-Claude-32f96e69590080d5a419f98aafd074b6) without losing context or memory. Today I tell you what I did after migrating.
+
+A few weeks ago I was in the process of hiring a corporate graphic designer. The goal: to develop all of [Ciudata](https://www.linkedin.com/company/ciudata-io/)'s sales materials. Executive presentations, sales decks, one-pagers by business vertical, by country, by buyer persona. The job was enormous. And the level of personalization I needed was even bigger. In the end I didn't find a graphic designer who matched my expectations and I decided...
+
+To create a skill in Claude that orchestrates 3 agents. In this article I explain it step by step.
+
+---
+
+## OK Bri, but what is a skill?
+
+A skill is a specialized agent for which you define a role, a context and rules of behavior. You tell it who it is, what it knows, how it should respond and what restrictions it has. From then on, that agent always operates within that frame. You don't have to repeat the context every time. The example in this article: the Sales Materials skill knows it works for Ciudata, and knows every vertical, every buyer persona and every country where we operate.
+
+A plugin is a connection between Claude and an external tool. Notion, Google Drive, your CRM, your calendar. It is not the agent itself; it is the bridge that gives it access to information or capabilities that live outside the conversation. Combined with a skill, the agent not only knows what to do, it can also go and get the information where it lives.
+
+And finally, an artifact is the output Claude generates and hands you as a file. A deck in PowerPoint, a one-pager in Word, a report in PDF. It is not text in the chat. It is a real document you can open, edit and send. The Sales Materials skill doesn't just give me pretty text on screen; it hands me the editable file.
+
+I set up two:
+
+1. **Sales Materials**: generates hyper-personalized presentations, decks and one-pagers for each of Ciudata's verticals, countries and buyer personas.
+2. **Business Researcher**: researches prospects and their executives before any sales meeting.
+
+---
+
+## Part 1: The Sales Materials agent
+
+- Open Claude and, in the left side panel, find the **"Projects"** section → click **"New project"**
+- Give it a name, your company or project, obviously!
+- Inside the project, go to **"Project instructions"**: this is your agent's brain. Here you define who it is, what it knows and how it should behave.
+- Write the instructions. Think of this as the brief you would give a designer or consultant on their first day. It should include: what the company is and what it does, the products or services it offers, who it sells to (verticals, countries, buyer personas), what kind of documents it will produce, the tone, structure and level of personalization you expect, and brand restrictions (colors, typefaces, key messages).
+
+> 💡 The more specific you are here, the fewer corrections you will need later. I included real examples of previous presentations so the agent understands the standard I expect.
+
+- Now load your knowledge files. Go to the **"Files"** section inside the project and upload: your brand guide (brand book or brand guidelines), previous templates or decks in PDF, descriptions of your business verticals, profiles of your buyer personas, and any positioning or messaging document you have.
+- Save the project and open a chat inside it. Start with a concrete instruction such as:
+
+> *"Create a one-pager for the retail vertical in Colombia. The person I am meeting is a Chief Revenue Officer. Focus on geolocation use cases for optimizing points of sale and territorial expansion."*
+
+- Review the output. The first time it may need adjustments. If something is off, correct the project instructions, not the chat. That way the learning stays for all future conversations.
+
+---
+
+## Part 2: The Business Researcher
+
+This was the agent that surprised me most. I set it up to research prospects and their executives before any sales meeting. Now I walk into every call with real context: who the person is, what they have published, what their company's priorities are, what recent news affects it.
+
+- Create skills
+- In the project instructions, define its role with precision:
+
+> 💡 You can use this prompt as a base for the instructions:
+
+- You can also load files here with your value proposition, use cases by industry and a detailed description of your ICP (Ideal Customer Profile). That way the agent doesn't just research the prospect, it already connects that information with your solution.
+- To use it, simply open a chat inside the project and write:
+
+> *"Research \[Executive's name\], \[Title\] at \[Company\]. I have a meeting with him next Thursday."*
+
+- The agent hands you the complete brief. You arrive at the meeting with context. Not with assumptions.
+
+---
+
+## The real result
+
+Before this, preparing a personalized deck took me several hours, and that is assuming I had a designer available. Today I give the agent the prospect's context, the vertical and the country, and in minutes I have a document ready to review and adjust.
+
+It is not automation for automation's sake.
+
+It is the capacity for hyper-personalization at scale.
+
+The difference between a generic deck and one the prospect feels was made exactly for them: that difference is made by context. And context is now managed by the agent.
+
+---
+
+In another article I will tell you how to connect these projects with external tools like Notion and Google Drive, and how to set up more complex workflows with Cowork.
+
+Xoxo B
