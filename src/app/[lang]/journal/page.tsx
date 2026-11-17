@@ -1,18 +1,27 @@
-import Link from "next/link";
+import { Link } from "@/components/link";
+import { TagList } from "@/components/connected";
 import { PageIntro } from "@/components/editorial";
 import { Mdx } from "@/components/mdx";
-import { getJournalEntries, resolveLocation } from "@/lib/content";
+import { getDictionary, toLang } from "@/i18n";
+import { getJournalEntries, resolveLocation, tagsOf } from "@/lib/content";
 import { pageMetadata } from "@/lib/seo";
 import { formatDate } from "@/utils/format";
 
-const lead = "Short thoughts, observations and notes from the road. Never more than three hundred words.";
-export const metadata = pageMetadata({ title: "Journal", description: lead, path: "/journal" });
+type Props = { params: Promise<{ lang: string }> };
 
-export default function JournalPage() {
+export async function generateMetadata({ params }: Props) {
+  const lang = toLang((await params).lang);
+  const t = getDictionary(lang);
+  return pageMetadata({ title: t.nav.journal, description: t.journal.lead, path: "/journal", lang });
+}
+
+export default async function JournalPage({ params }: Props) {
+  const lang = toLang((await params).lang);
+  const t = getDictionary(lang);
   const entries = getJournalEntries();
   return (
     <>
-      <PageIntro label="Chapter 05" title="Journal" lead={lead} />
+      <PageIntro label={`${t.common.chapter} 05`} title={t.nav.journal} lead={t.journal.lead} />
       <div className="shell pb-20 md:pb-28">
         <ol className="lg:grid lg:grid-cols-12 lg:gap-x-6">
           {entries.map((entry) => {
@@ -25,7 +34,7 @@ export default function JournalPage() {
                 className="scroll-mt-24 border-t border-border py-10 md:grid md:grid-cols-8 md:gap-x-6 md:py-14 lg:col-span-10 lg:col-start-2"
               >
                 <p className="meta md:col-span-2 md:pt-2">
-                  <time dateTime={entry.date}>{formatDate(entry.date)}</time>
+                  <time dateTime={entry.date}>{formatDate(entry.date, lang)}</time>
                   {place && (
                     <>
                       <br />
@@ -42,6 +51,7 @@ export default function JournalPage() {
                 <div className="mt-4 md:col-span-6 md:mt-0">
                   <h2 className="font-display text-3xl leading-tight tracking-tight md:text-4xl">{entry.title}</h2>
                   <Mdx source={entry.body} className="mt-4" />
+                  <TagList tags={tagsOf(entry)} className="mt-6" lang={lang} />
                 </div>
               </li>
             );

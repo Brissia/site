@@ -2,6 +2,8 @@
 
 import { Moon, Sun } from "lucide-react";
 import { useEffect } from "react";
+import { getDictionary } from "@/i18n";
+import { useLang } from "./link";
 
 /**
  * Runs before paint so there is no flash. Follows the system unless the
@@ -10,6 +12,7 @@ import { useEffect } from "react";
 export const themeScript = `(function(){try{var d=document.documentElement,s=localStorage.getItem('theme'),m=matchMedia('(prefers-color-scheme: dark)');d.dataset.theme=(s==='dark'||s==='light')?s:(m.matches?'dark':'light')}catch(e){}})()`;
 
 export function ThemeToggle() {
+  const label = getDictionary(useLang()).common.theme;
   useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const follow = () => {
@@ -34,7 +37,7 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      aria-label="Switch between light and dark mode"
+      aria-label={label}
       className="grid size-10 place-items-center rounded-full transition-colors duration-200 ease-out hover:bg-hover"
     >
       <Sun aria-hidden strokeWidth={1.25} className="size-[18px] [[data-theme=dark]_&]:hidden" />

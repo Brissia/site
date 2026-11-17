@@ -9,31 +9,53 @@ The smallest version that can become a sophisticated platform. Each layer has on
 ```
 src/
 ├── app/            Routes. One folder per room of the house.
-│   ├── page.tsx                Home: Hero, Ideas, Domains, Atlas, Journal
-│   ├── ideas/ [slug]/          Long-form
-│   ├── atlas/ [slug]/          Map and places
-│   ├── journal/ experiments/ library/ about/ search/
+│   ├── layout.tsx              Passes through; the document is built per language below
+│   ├── [lang]/                 Every page, once per interface language (en, es)
+│   │   ├── layout.tsx              <html lang>, header, footer
+│   │   ├── page.tsx                Home: Hero, Nomading, Ideas, Domains, Projects, Journal
+│   │   ├── nomading/ [slug]/       Map and places (content folder: atlas)
+│   │   ├── ideas/ [slug]/          Long-form
+│   │   ├── experiments/ [slug]/  library/ [slug]/
+│   │   ├── tags/ [tag]/            Topic pages across every collection
+│   │   ├── graph/                  Map of ideas (static SVG)
+│   │   ├── journal/ speaking/ about/ search/
+│   │   └── [...rest]/ not-found.tsx   404 in the reader's language
 │   └── sitemap.ts robots.ts feed.xml/ icon.svg
 ├── components/     UI. Server components by default.
 │   ├── editorial.tsx           Chapter, PageIntro, ArticleCard, Cover, ArrowLink, JsonLd
-│   ├── header.tsx footer.tsx   Global chrome
+│   ├── connected.tsx           Connected, TagList, ContentList
+│   ├── link.tsx                The site's Link: adds /es for Spanish readers (client)
+│   ├── place-card.tsx          A stop: photograph, sentence, date
+│   ├── header.tsx footer.tsx   Global chrome, language switch
 │   ├── theme.tsx               Theme script and toggle
 │   ├── motion.tsx              MotionProvider, Reveal, ScrollProgress
 │   ├── atlas-map.tsx           Leaflet map (client, loads on scroll)
-│   ├── atlas-explorer.tsx      Filters, map and list
-│   ├── search-client.tsx       Fuse.js search
+│   ├── atlas-explorer.tsx      Filters, map and cards
+│   ├── search-client.tsx       Fuse.js search, accent and language aware
 │   └── mdx.tsx analytics.tsx
 ├── content/        The knowledge. MDX, one file per piece.
-├── data/site.ts    Identity, navigation, domains, links
+├── data/site.ts    Identity, menu order, domains, links
+├── i18n/
+│   ├── index.ts                Languages and URL helpers (localize)
+│   └── dictionaries.ts         Every interface word, in English and Spanish
 ├── fonts/          Self-hosted typefaces
 ├── lib/
-│   ├── content.ts              The content layer (only file that reads the disk)
-│   ├── seo.ts                  Metadata and structured data builders
+│   ├── content.ts              The content layer (only file that reads the disk): collections, connections, tags, recommendations, search index
+│   ├── graph.ts                Nodes, threads and layout of the map of ideas
+│   ├── seo.ts                  Metadata, hreflang and structured data builders
 │   └── fonts.ts
 ├── styles/globals.css          Design tokens and the few global rules
 ├── types/content.ts            Content model
 └── utils/format.ts
 ```
+
+## Languages
+
+English has no prefix (`/ideas`); Spanish lives under `/es` (`/es/ideas`). `next.config.ts` rewrites addresses without a language to `/en/...` without changing what the reader sees, and redirects `/en/...` to the bare address. Both versions are static.
+
+Components write addresses as if there were one language (`/ideas`). `Link` in `src/components/link.tsx` adds the prefix. Server components receive `lang` from the route and read strings with `getDictionary(lang)`; client components use `useLang()`. Content is never translated: each piece keeps its own `lang` attribute.
+
+Adding a third language is a new entry in `languages` and a new dictionary; the pages do not change.
 
 ## Design tokens
 
@@ -73,7 +95,7 @@ A place page gathers every article and note that points at it, without anyone ma
 
 ## SEO
 
-Metadata API with canonical URLs, OpenGraph and Twitter cards on every route (`pageMetadata`). Structured data: `Person` site-wide, `Article` on essays, `Place` on atlas entries, `CreativeWork` on experiments. `sitemap.xml`, `robots.txt` and `feed.xml` are generated from content.
+Metadata API with canonical URLs, OpenGraph and Twitter cards on every route (`pageMetadata`). Structured data: `Person` site-wide, `Article` on essays, `Place` on Nomading entries, `CreativeWork` on experiments, `Review` on library entries. `sitemap.xml`, `robots.txt` and `feed.xml` are generated from content.
 
 ## Performance
 

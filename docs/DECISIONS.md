@@ -6,27 +6,59 @@ The three source documents disagree in a few places. This is what was chosen, wh
 
 | Topic | Design System | Information Architecture | Build brief | Built | To change it |
 |-------|---------------|--------------------------|-------------|-------|--------------|
-| Navigation | Ideas, Maps, Journeys, Experiments, Speaking, About, Search, Theme, Language | Ideas, Atlas, Experiments, Library, About, Search | Atlas throughout | Ideas, Atlas, Experiments, Library, Journal, About, plus Search and Theme | `navigation` in `src/data/site.ts`. Labels can change without touching URLs |
-| Hero CTA | None | n/a | None | None. The mockup's "Explore my work" button was left out | `Hero` in `src/app/page.tsx` |
+| Navigation | Ideas, Maps, Journeys, Experiments, Speaking, About, Search, Theme, Language | Ideas, Atlas, Experiments, Library, About, Search | Atlas throughout | Nomading, Ideas, Experiments, Library, Journal, About, plus Search, Language and Theme | Order in `navigation` in `src/data/site.ts`; labels in `src/i18n/dictionaries.ts` |
+| Hero CTA | None | n/a | None | None. The mockup's "Explore my work" button was left out | `Hero` in `src/app/[lang]/page.tsx` |
 | Hero line | "Critical thinking first, then everything else" | n/a | "Manifesto" | The Design System line. The mockup's "I study how technology, cities and human behavior shape business growth" is used as the site description | `site.manifesto` |
-| Home order | Chapters 01 to 07 | Adds Featured Projects and Speaking | Hero, Latest Essay, Domains, Atlas, Journal, Newsletter | The brief's order, numbered as chapters | `src/app/page.tsx` |
+| Home order | Chapters 01 to 07 | Adds Featured Projects and Speaking | Hero, Latest Essay, Domains, Atlas, Journal, Newsletter | Hero, Nomading, Ideas, Domains, Projects (when any is featured), Journal, Newsletter | `src/app/[lang]/page.tsx` |
 | CMS | Sanity | n/a | MDX in Git first, Sanity later | MDX in Git | See ARCHITECTURE.md, growth path |
 | Display typeface | Canela or Editorial New | n/a | Free infrastructure | Newsreader (open source). Canela is a commercial license | `src/fonts/README.md` |
 | Dark background | #050505, "not black, matte paper" | n/a | "OLED black" | #050505 with #101010 cards | `globals.css` |
 
-## Built beyond Phase 1
+## Phase 2, part one: pages and relationships
 
-Experiments, Library and Search belong to Phase 2 but are linked from the navigation, so each has a working first version instead of a dead link. They are index pages; individual item pages come later.
+- **Experiments and Library entries have their own pages** at `/experiments/<slug>` and `/library/<slug>`. The index pages now link to them. The old `#anchor` links on the index pages still scroll to the right entry.
+- **Connections are bidirectional.** `getConnections` in `src/lib/content.ts` reads what a piece points to and what points back at it. A connection is written once, on either side. The older fields (`location`, `relatedIdeas`, `relatedArticles`, `relatedProjects`) feed the same graph, so no existing file had to change.
+- **Topic pages** at `/tags` and `/tags/<tag>` gather every collection. Tags on essays, places, journal notes and entries link there instead of to search. Atlas `themes` and the experiment `category` count as tags.
+- **Homepage Domains** Growth, AI, Cities and Culture now open their topic page. Fashion still opens search because nothing carries that tag yet; a topic page with no content would be a 404.
+- **Journal notes do not get their own page.** They are short enough to read on the index, and the Information Architecture gives Journal a single URL. They take part in connections and topics through their anchor.
+- **No sample connections were added.** The Library and Experiments entries are still samples, and linking them to the real essays would print invented relationships on real pages. Today the essays connect to each other; the rest lights up as real entries arrive.
+- **Tags were left as written.** Spanish and English versions of the same idea (`estrategia` and `strategy`, `liderazgo` and `leadership`) are separate topics. Merging them is an editorial decision.
+
+## Nomading and the hero
+
+- **Atlas is now Nomading**, the first chapter of the site and of the menu. Its subject is life as a digital nomad rather than what each city taught about business. Each stop is a photograph (always black and white), a sentence and a date.
+- **The address is `/nomading`.** `/atlas` and `/atlas/<place>` redirect permanently, so links already shared keep working. The content folder is still `src/content/atlas` and references are still written `atlas/la-paz`.
+- **Business observations** remain available on a place page but only appear when an entry has them.
+- **The hero** reads Digital Nomad, Business Scientist, Growth & Expansion Strategist, then the manifesto. "Building better businesses across Latin America" was removed from the hero; it is still in `site.statement` if wanted elsewhere.
+- **Sample places** (La Paz, Tokyo, Asunción, Montevideo still carry sample text) are kept off the homepage until rewritten.
+
+## Phase 2, part two: two languages, Speaking, Projects
+
+- **English without a prefix, Spanish under `/es`.** Existing addresses did not change. `/en/...` redirects to the address without prefix. Pages live in `src/app/[lang]`; `next.config.ts` serves addresses without a language from `/en`.
+- **Only the interface is translated.** Each piece keeps the language it was written in and its `lang` attribute. Search engines get `hreflang` links between the two versions and both are in the sitemap.
+- **The manifesto and the three roles stay in English in both languages.** They are treated as a signature, not as interface text. To translate them, move them into `src/i18n/dictionaries.ts`.
+- **Spanish section names**: Nomading, Ideas, Experimentos, Biblioteca, Diario, Sobre mí. Addresses stay in English (`/es/library`). All of it is one edit away in the dictionary.
+- **No automatic language detection.** A visitor gets the language of the link they opened and can switch with EN/ES in the header. Redirecting by browser language would need code running on every visit and breaks shared links.
+- **About** is written by Brissia in both languages (`about.mdx` and `about.es.mdx`). The English version is her own text, not a translation made by the site.
+- **Speaking** exists at `/speaking` and reads `src/content/talks/`. It is not in the menu and is linked from About only when there is at least one talk.
+- **Projects on the homepage** shows experiments marked `featured: true`. None is marked, so the chapter is hidden.
+
+## Phase 3: the free part of the AI layer
+
+Built without any paid service, model or account. Everything is worked out when the site is built.
+
+- **Read next.** Each essay recommends up to three others. Sharing a rare topic counts more than sharing a common one; pieces already listed under "Connected to" are not repeated. `getRecommendations` in `src/lib/content.ts`.
+- **Map of ideas** at `/graph`: every piece, every topic used more than once and the threads between them, drawn as plain SVG with no script. `src/lib/graph.ts`.
+- **Search** now reads the body of essays, places and notes (not only titles and tags), ignores accents, and bridges languages for common terms: "ciudades" also finds what is tagged "cities". The word pairs are a short list at the top of `src/components/search-client.tsx`.
 
 ## Not built yet
 
-- **Language switch.** The interface is in English and each piece is published in its own language with the correct `lang` attribute. A full ES/EN interface is a Phase 2 decision because it doubles what has to be maintained.
-- **Speaking.** `src/content/talks/` and its template exist; the page does not.
-- **Featured Projects** on the homepage.
+- **Ask Brissia.** An assistant that answers from the site needs a paid model API, which breaks the free-tier rule. Decided: not for now. The search index (`getSearchIndex`) and the graph are the base it would use.
+- **Semantic search with embeddings.** Same reason. Search is still text matching, now over more text and across both languages.
+- **Experiment and Library sample entries** have no body text yet, so their pages show the description or annotation only.
 - **shadcn/ui.** Nothing in this version needed a component from it. The tokens are compatible, so `npx shadcn@latest init` can be run the day a dialog, command palette or form library is needed.
-- **Supabase.** Not needed while content is static. Reserved for preferences and the AI layer.
-- **Semantic search.** Search today is fuzzy text matching over titles, tags and descriptions (Fuse.js). It finds "growth" and "La Paz"; it does not understand meaning.
-- **OpenGraph images.** Pages use the cover image when there is one. A generated card per essay is a small addition.
+- **Supabase.** Not needed while content is static.
+- **OpenGraph images.** Pages use the cover or the first photograph when there is one. A generated card per essay is a small addition.
 
 ## Not verified
 
@@ -51,4 +83,4 @@ Articles with time-bound calls to action left as written: Social Selling (Linked
 
 ## Placeholders to replace
 
-Atlas, Journal, Library and Experiments still hold sample entries, each marked as a sample. The About page is a draft based on the public profile. The calendar link is empty in `src/data/site.ts` and hidden until filled.
+Journal, Library and Experiments still hold sample entries, each marked as a sample, and so do four places in Nomading (La Paz, Tokyo, Asunción, Montevideo). No place has a photograph or a date yet. The calendar link is empty in `src/data/site.ts` and hidden until filled.

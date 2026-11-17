@@ -1,19 +1,20 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import Link from "next/link";
-import { MapPin } from "lucide-react";
+import { Link } from "@/components/link";
 import { ArrowLink, ArticleCard, ArticleMeta, Chapter } from "@/components/editorial";
 import { Mdx } from "@/components/mdx";
+import { PlaceCard } from "@/components/place-card";
 import { Reveal } from "@/components/motion";
 import { domains, site } from "@/data/site";
-import { getArticles, getAtlasEntries, getJournalEntries, resolveLocation } from "@/lib/content";
+import { getDictionary, toLang, type Lang } from "@/i18n";
+import { getArticles, getAtlasEntries, getExperiments, getJournalEntries, resolveLocation } from "@/lib/content";
 import { formatDate, pad2 } from "@/utils/format";
 
 const AtlasMap = dynamic(() => import("@/components/atlas-map"));
 
-function Hero() {
+function Hero({ lang }: { lang: Lang }) {
   return (
-    <section aria-label="Introduction" className="relative lg:grid lg:min-h-[calc(100dvh-4rem)] lg:grid-cols-12">
+    <section aria-label={getDictionary(lang).home.intro} className="relative lg:grid lg:min-h-[calc(100dvh-4rem)] lg:grid-cols-12">
       <div className="shell-start relative z-10 flex flex-col justify-center pb-12 pt-14 md:pt-20 lg:col-span-6 lg:py-24 lg:pr-10">
         <h1 className="font-display text-[19vw] leading-[0.88] tracking-[-0.03em] sm:text-[7.5rem] lg:text-[clamp(5rem,8.2vw,9rem)]">
           Brissia
@@ -22,9 +23,8 @@ function Hero() {
         </h1>
         <div className="mt-8 text-lg leading-snug md:text-xl">
           {site.roles.map((role) => (
-            <p key={role}>{role}.</p>
+            <p key={role}>{role}</p>
           ))}
-          <p>{site.statement}</p>
         </div>
         <span aria-hidden className="mt-8 block h-px w-14 bg-foreground" />
         <p className="mt-8 max-w-md font-display text-2xl italic leading-snug md:text-[1.75rem]">{site.manifesto}</p>
@@ -59,27 +59,73 @@ function Hero() {
   );
 }
 
-export default function HomePage() {
+type Props = { params: Promise<{ lang: string }> };
+
+export default async function HomePage({ params }: Props) {
+  const lang = toLang((await params).lang);
+  const t = getDictionary(lang);
   const [featured, ...rest] = getArticles();
   const places = getAtlasEntries();
   const journal = getJournalEntries().slice(0, 3);
-  const quotePlace = places.find((p) => p.slug === "tokyo") ?? places[0];
+  // Experiments marked "featured: true". The chapter stays hidden until there is one.
+  const projects = getExperiments().filter((e) => e.featured).slice(0, 3);
+  // Stops with a photograph come first, then the most recent ones. Entries still holding sample text stay off the homepage.
+  const stops = places
+    .filter((p) => !p.notes.startsWith("Sample"))
+    .sort((a, b) => Number(b.photos.length > 0) - Number(a.photos.length > 0))
+    .slice(0, 3);
   const countries = new Set(places.map((p) => p.country)).size;
 
   return (
     <>
-      <Hero />
+      <Hero lang={lang} />
+
+      {places.length > 0 && (
+        <Chapter
+          id="nomading"
+          number={1}
+          lang={lang}
+          title={t.nav.nomading}
+          lead={t.home.nomadingLead(places.length, countries)}
+          link={{ label: t.home.seeStops, href: "/nomading" }}
+        >
+          <AtlasMap
+            places={places.map(({ slug, city, country, coordinates, notes, url }) => ({ slug, city, country, coordinates, notes, url }))}
+            className="h-[22rem] lg:h-[28rem]"
+          />
+          <ul className="mt-12 grid gap-x-6 gap-y-12 md:grid-cols-3">
+            {stops.map((p, i) => (
+              <li key={p.slug}>
+                <Reveal delay={i * 0.06}>
+                  <PlaceCard
+                    place={{
+                      slug: p.slug,
+                      city: p.city,
+                      country: p.country,
+                      notes: p.notes,
+                      url: p.url,
+                      photo: p.photos[0],
+                      dateLabel: p.visitedDate ? formatDate(p.visitedDate, lang) : undefined,
+                    }}
+                  />
+                </Reveal>
+              </li>
+            ))}
+          </ul>
+        </Chapter>
+      )}
 
       {featured && (
         <Chapter
           id="latest-essay"
-          number={1}
-          title="Ideas"
-          lead="Essays and research on cities, technology, business and what comes next."
-          link={{ label: "Browse all ideas", href: "/ideas" }}
+          number={2}
+          lang={lang}
+          title={t.nav.ideas}
+          lead={t.home.ideasLead}
+          link={{ label: t.home.browseIdeas, href: "/ideas" }}
         >
           <Reveal>
-            <ArticleCard article={featured} featured />
+            <ArticleCard article={featured} featured lang={lang} />
           </Reveal>
           {rest.length > 0 && (
             <ul className="mt-12 md:mt-16">
@@ -87,7 +133,7 @@ export default function HomePage() {
                 <li key={a.slug} lang={a.language} className="border-t border-border">
                   <Link href={a.url} className="group grid gap-2 py-6 md:grid-cols-9 md:gap-6">
                     <div className="md:col-span-3 md:pt-1.5">
-                      <ArticleMeta article={a} />
+                      <ArticleMeta article={a} lang={lang} />
                     </div>
                     <div className="md:col-span-6">
                       <h3 className="font-display text-[1.75rem] leading-[1.1] tracking-tight">
@@ -103,18 +149,18 @@ export default function HomePage() {
         </Chapter>
       )}
 
-      <Chapter id="domains" number={2} title="Domains" lead="The territories this site keeps returning to. Each one is a way in.">
+      <Chapter id="domains" number={3} lang={lang} title={t.home.domains} lead={t.home.domainsLead} link={{ label: t.graph.link, href: "/graph" }}>
         <ul className="grid grid-cols-2 border-l border-t border-border md:grid-cols-4">
           {domains.map((d, i) => (
-            <li key={d.name} className="border-b border-r border-border">
+            <li key={d.key} className="border-b border-r border-border">
               <Link
                 href={d.href}
                 className="group flex aspect-square flex-col justify-between p-4 transition-colors duration-200 ease-out hover:bg-hover md:p-5"
               >
                 <span className="meta">{pad2(i + 1)}</span>
                 <span>
-                  <span className="block font-display text-[1.65rem] leading-none tracking-tight md:text-3xl">{d.name}</span>
-                  <span className="mt-2 block text-[13px] leading-snug text-muted">{d.note}</span>
+                  <span className="block font-display text-[1.65rem] leading-none tracking-tight md:text-3xl">{t.domains[d.key].name}</span>
+                  <span className="mt-2 block text-[13px] leading-snug text-muted">{t.domains[d.key].note}</span>
                 </span>
               </Link>
             </li>
@@ -122,47 +168,43 @@ export default function HomePage() {
         </ul>
       </Chapter>
 
-      {places.length > 0 && (
+      {projects.length > 0 && (
         <Chapter
-          id="atlas"
-          number={3}
-          title="Atlas"
-          lead={`${places.length} cities in ${countries} countries so far. Not a travel log: knowledge, placed where it was learned.`}
-          link={{ label: "Explore the map", href: "/atlas" }}
+          id="projects"
+          number={4}
+          lang={lang}
+          title={t.projects.title}
+          lead={t.projects.lead}
+          link={{ label: t.projects.all, href: "/experiments" }}
         >
-          <div className="grid gap-10 lg:grid-cols-9 lg:gap-6">
-            <div className="lg:col-span-6">
-              <AtlasMap
-                places={places.map(({ slug, city, country, coordinates, notes, url }) => ({ slug, city, country, coordinates, notes, url }))}
-                className="h-[26rem] lg:h-[30rem]"
-              />
-            </div>
-            {quotePlace && (
-              <Reveal className="lg:col-span-3 lg:border-l lg:border-border lg:pl-6">
-                <figure className="flex h-full flex-col justify-center">
-                  <blockquote className="font-display text-3xl italic leading-[1.15] tracking-tight">
-                    &ldquo;{quotePlace.notes}&rdquo;
-                  </blockquote>
-                  <figcaption className="mt-6">
-                    <Link href={quotePlace.url} className="meta inline-flex items-center gap-2 hover:text-foreground">
-                      <MapPin aria-hidden strokeWidth={1.25} className="size-4" />
-                      {quotePlace.city}, {quotePlace.country}
+          <ul className="grid gap-x-6 md:grid-cols-3">
+            {projects.map((project, i) => (
+              <li key={project.slug} className="border-t border-border py-6 md:py-0 md:pt-6">
+                <Reveal delay={i * 0.06}>
+                  <p className="meta">
+                    {project.category} · {t.experiments.statuses[project.status] ?? project.status}
+                  </p>
+                  <h3 className="mt-3 font-display text-2xl leading-tight tracking-tight">
+                    <Link href={project.url} className="link-quiet decoration-transparent hover:decoration-foreground">
+                      {project.title}
                     </Link>
-                  </figcaption>
-                </figure>
-              </Reveal>
-            )}
-          </div>
+                  </h3>
+                  <p className="mt-3 text-[15px] leading-relaxed text-muted">{project.description}</p>
+                </Reveal>
+              </li>
+            ))}
+          </ul>
         </Chapter>
       )}
 
       {journal.length > 0 && (
         <Chapter
           id="journal"
-          number={4}
-          title="Journal"
-          lead="Short notes. Never more than three hundred words."
-          link={{ label: "Read the journal", href: "/journal" }}
+          number={projects.length > 0 ? 5 : 4}
+          lang={lang}
+          title={t.nav.journal}
+          lead={t.home.journalLead}
+          link={{ label: t.home.readJournal, href: "/journal" }}
         >
           <ul className="grid gap-x-6 md:grid-cols-3">
             {journal.map((entry, i) => {
@@ -171,7 +213,7 @@ export default function HomePage() {
                 <li key={entry.slug} lang={entry.language} className="border-t border-border py-6 md:py-0 md:pt-6">
                   <Reveal delay={i * 0.06}>
                     <p className="meta">
-                      <time dateTime={entry.date}>{formatDate(entry.date)}</time>
+                      <time dateTime={entry.date}>{formatDate(entry.date, lang)}</time>
                       {place && <span> · {place.label}</span>}
                     </p>
                     <h3 className="mt-3 font-display text-2xl leading-tight tracking-tight">
@@ -189,7 +231,7 @@ export default function HomePage() {
       )}
 
       <div className="shell pb-16 lg:hidden">
-        <ArrowLink href="/about">About Brissia</ArrowLink>
+        <ArrowLink href="/about">{t.home.about}</ArrowLink>
       </div>
     </>
   );

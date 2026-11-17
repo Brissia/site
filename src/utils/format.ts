@@ -1,10 +1,17 @@
-const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+import { getDictionary, type Lang } from "@/i18n";
 
-/** "2026-10-20" becomes "OCT 20, 2026". Parsed by hand to avoid timezone drift. */
-export function formatDate(iso: string): string {
+/**
+ * "2026-10-20" becomes "OCT 20, 2026", "2026-10" becomes "OCT 2026" and "2026" stays "2026",
+ * so a place can carry the date as precisely as it is remembered.
+ * Parsed by hand to avoid timezone drift.
+ */
+export function formatDate(iso: string, lang: Lang = "en"): string {
+  const months = getDictionary(lang).months;
   const [y, m, d] = iso.slice(0, 10).split("-").map(Number);
+  if (y && m && !d && months[m - 1]) return `${months[m - 1]} ${y}`;
   if (!y || !m || !d) return iso;
-  return `${MONTHS[m - 1]} ${String(d).padStart(2, "0")}, ${y}`;
+  const day = String(d).padStart(2, "0");
+  return lang === "es" ? `${day} ${months[m - 1]} ${y}` : `${months[m - 1]} ${day}, ${y}`;
 }
 
 export function formatCoordinates([lat, lng]: [number, number]): string {
@@ -21,4 +28,14 @@ export function countWords(text: string): number {
 
 export function pad2(n: number): string {
   return String(n).padStart(2, "0");
+}
+
+/** "Métricas de Growth" becomes "metricas-de-growth". Tags that differ only by case or accents share a page. */
+export function tagSlug(tag: string): string {
+  return tag
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }

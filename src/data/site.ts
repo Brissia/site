@@ -6,12 +6,13 @@ export const site = {
   name: "Brissia Benavente",
   url: (process.env.NEXT_PUBLIC_SITE_URL ?? "https://brissiabenavente.com").replace(/\/$/, ""),
   locale: "en",
-  roles: ["Business Scientist", "Growth & Expansion Strategist"],
+  roles: ["Digital Nomad", "Business Scientist", "Growth & Expansion Strategist"],
   statement: "Building better businesses across Latin America.",
   manifesto: "Critical thinking first, then everything else.",
   description:
-    "Ideas, places and experiments by Brissia Benavente, a business scientist studying how technology, cities and human behavior shape growth across Latin America.",
-  base: "La Paz, Bolivia",
+    "Places, ideas and experiments by Brissia Benavente, a digital nomad and business scientist studying how technology, cities and human behavior shape growth across Latin America.",
+  /** Where she is from. She is a digital nomad, so the site never says where she is based. */
+  origin: "Bolivia",
   portrait: {
     src: "/images/portrait-terrace.jpg",
     alt: "Brissia Benavente seated on a terrace beside a glass wall, looking out over the hillsides of the city.",
@@ -34,24 +35,29 @@ export const site = {
   newsletterAction: process.env.NEXT_PUBLIC_NEWSLETTER_ACTION ?? "",
 } as const;
 
-/** Rename a label here and it changes everywhere. URLs stay stable. */
+/** Order and URLs of the menu. The labels, in both languages, live in src/i18n/dictionaries.ts under "nav". */
 export const navigation = [
-  { label: "Ideas", href: "/ideas" },
-  { label: "Atlas", href: "/atlas" },
-  { label: "Experiments", href: "/experiments" },
-  { label: "Library", href: "/library" },
-  { label: "Journal", href: "/journal" },
-  { label: "About", href: "/about" },
+  { key: "nomading", href: "/nomading" },
+  { key: "ideas", href: "/ideas" },
+  { key: "experiments", href: "/experiments" },
+  { key: "library", href: "/library" },
+  { key: "journal", href: "/journal" },
+  { key: "about", href: "/about" },
 ] as const;
 
-/** Homepage "Knowledge Domains". Each one resolves to a tag or a section. */
+/**
+ * Homepage "Knowledge Domains". Each one resolves to a topic page or a section.
+ * A /tags/<name> link needs at least one published piece with that tag; until
+ * then, point it at /search?q=<name> as Fashion does.
+ * Names and notes, in both languages, live in src/i18n/dictionaries.ts under "domains".
+ */
 export const domains = [
-  { name: "Growth", note: "How businesses actually expand.", href: "/search?q=growth" },
-  { name: "AI", note: "Tools that change how we decide.", href: "/search?q=ai" },
-  { name: "Atlas", note: "Knowledge, placed on a map.", href: "/atlas" },
-  { name: "Cities", note: "Territory as a business variable.", href: "/search?q=cities" },
-  { name: "Culture", note: "Art, criticism and context.", href: "/search?q=culture" },
-  { name: "Fashion", note: "What people choose to signal.", href: "/search?q=fashion" },
-  { name: "Thinking", note: "Methods before opinions.", href: "/ideas" },
-  { name: "Experiments", note: "Unfinished on purpose.", href: "/experiments" },
+  { key: "growth", href: "/tags/growth" },
+  { key: "ai", href: "/tags/ai" },
+  { key: "nomading", href: "/nomading" },
+  { key: "cities", href: "/tags/cities" },
+  { key: "culture", href: "/tags/culture" },
+  { key: "fashion", href: "/search?q=fashion" },
+  { key: "thinking", href: "/ideas" },
+  { key: "experiments", href: "/experiments" },
 ] as const;

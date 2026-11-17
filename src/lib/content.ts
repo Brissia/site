@@ -10,8 +10,11 @@ import type {
   JournalEntry,
   LibraryItem,
   SearchDocument,
+  Tag,
+  Talk,
 } from "@/types/content";
-import { countWords, formatDate } from "@/utils/format";
+import { getDictionary, type Lang } from "@/i18n";
+import { countWords, formatDate, tagSlug } from "@/utils/format";
 
 /**
  * Git-based content layer.
@@ -95,7 +98,7 @@ export function getAtlasEntries(): AtlasEntry[] {
     return {
       slug,
       collection: "atlas",
-      url: `/atlas/${slug}`,
+      url: `/nomading/${slug}`,
       body,
       draft: data.draft === true,
       country: r("country"),
@@ -108,9 +111,11 @@ export function getAtlasEntries(): AtlasEntry[] {
       themes: list(data.themes),
       relatedArticles: list(data.relatedArticles),
       relatedProjects: list(data.relatedProjects),
+      related: list(data.related),
     };
   });
-  return visible(items).sort((a, b) => a.city.localeCompare(b.city));
+  // Most recent stop first; places without a date follow, alphabetically.
+  return visible(items).sort((a, b) => byDateDesc(a.visitedDate ?? "", b.visitedDate ?? "") || a.city.localeCompare(b.city));
 }
 
 export function getExperiments(): Experiment[] {
@@ -119,7 +124,7 @@ export function getExperiments(): Experiment[] {
     return {
       slug,
       collection: "experiments",
-      url: `/experiments#${slug}`,
+      url: `/experiments/${slug}`,
       body,
       draft: data.draft === true,
       title: r("title"),
@@ -130,9 +135,32 @@ export function getExperiments(): Experiment[] {
       links: list(data.links),
       screenshots: list(data.screenshots),
       technicalNotes: optional(data.technicalNotes),
+      tags: list(data.tags),
+      related: list(data.related),
+      featured: data.featured === true,
     };
   });
   return visible(items);
+}
+
+/** Talks, panels, podcasts and interviews, most recent first. */
+export function getTalks(): Talk[] {
+  const items = readCollection("talks").map(({ slug, data }): Talk => {
+    const r = <T,>(k: string) => required<T>("talks", slug, data, k);
+    return {
+      slug,
+      draft: data.draft === true,
+      title: r("title"),
+      event: r("event"),
+      date: date(r("date")),
+      location: optional(data.location),
+      type: optional(data.type) ?? "Talk",
+      video: optional(data.video),
+      slides: optional(data.slides),
+      language: optional(data.language) ?? "es",
+    };
+  });
+  return visible(items).sort((a, b) => byDateDesc(a.date, b.date));
 }
 
 export function getLibraryItems(): LibraryItem[] {
@@ -141,7 +169,7 @@ export function getLibraryItems(): LibraryItem[] {
     return {
       slug,
       collection: "library",
-      url: `/library#${slug}`,
+      url: `/library/${slug}`,
       body,
       draft: data.draft === true,
       title: r("title"),
@@ -152,6 +180,7 @@ export function getLibraryItems(): LibraryItem[] {
       personalReview: r("personalReview"),
       tags: list(data.tags),
       relatedIdeas: list(data.relatedIdeas),
+      related: list(data.related),
       link: optional(data.link),
     };
   });
@@ -178,6 +207,7 @@ export function getJournalEntries(): JournalEntry[] {
       tags: list(data.tags),
       language: optional(data.language) ?? "en",
       wordCount,
+      related: list(data.related),
     };
   });
   return visible(items).sort((a, b) => byDateDesc(a.date, b.date));
@@ -187,6 +217,13 @@ export function getJournalEntries(): JournalEntry[] {
 
 export const getArticle = (slug: string) => getArticles().find((a) => a.slug === slug);
 export const getAtlasEntry = (slug: string) => getAtlasEntries().find((a) => a.slug === slug);
+export const getExperiment = (slug: string) => getExperiments().find((e) => e.slug === slug);
+export const getLibraryItem = (slug: string) => getLibraryItems().find((l) => l.slug === slug);
+
+/** Every published piece, in section order. */
+export function getAllContent(): AnyContent[] {
+  return [...getArticles(), ...getAtlasEntries(), ...getExperiments(), ...getLibraryItems(), ...getJournalEntries()];
+}
 
 /* ---------------------------------------------------------- relationships */
 
@@ -198,17 +235,54 @@ export function resolveLocation(location?: string): { label: string; url?: strin
 }
 
 /** Resolves "collection/slug" references into real content, silently skipping broken ones. */
-export function resolveRefs(refs: string[]): AnyContent[] {
-  const all: AnyContent[] = [
-    ...getArticles(),
-    ...getAtlasEntries(),
-    ...getExperiments(),
-    ...getLibraryItems(),
-    ...getJournalEntries(),
-  ];
+export function resolveRefs(refs: string[], all: AnyContent[] = getAllContent()): AnyContent[] {
   return refs
-    .map((ref) => all.find((c) => `${c.collection}/${c.slug}` === ref))
+    .map((ref) => all.find((c) => refOf(c) === ref))
     .filter((c): c is AnyContent => Boolean(c));
+}
+
+const refOf = (item: AnyContent) => `${item.collection}/${item.slug}`;
+
+/**
+ * Every reference a piece declares in its own frontmatter, as "collection/slug".
+ * The older single-purpose fields (location, relatedIdeas, relatedArticles,
+ * relatedProjects) are folded in, so nothing has to be rewritten.
+ */
+function outgoingRefs(item: AnyContent): string[] {
+  switch (item.collection) {
+    case "ideas":
+      return [...item.relatedContent, ...(item.location ? [`atlas/${item.location}`] : [])];
+    case "atlas":
+      return [
+        ...item.related,
+        ...item.relatedArticles.map((s) => `ideas/${s}`),
+        ...item.relatedProjects.map((s) => `experiments/${s}`),
+      ];
+    case "experiments":
+      return item.related;
+    case "library":
+      return [...item.related, ...item.relatedIdeas.map((s) => `ideas/${s}`)];
+    case "journal":
+      return [...item.related, ...(item.location ? [`atlas/${item.location}`] : [])];
+  }
+}
+
+/**
+ * The knowledge graph, one node at a time. A connection is declared once, on
+ * either side, and shows on both: what this piece points to comes first, in
+ * the order it was written, followed by everything that points back at it.
+ */
+export function getConnections(item: AnyContent): AnyContent[] {
+  const all = getAllContent();
+  const self = refOf(item);
+  const incoming = all.filter((other) => refOf(other) !== self && outgoingRefs(other).includes(self));
+  const seen = new Set<string>([self]);
+  return [...resolveRefs(outgoingRefs(item), all), ...incoming].filter((c) => {
+    const ref = refOf(c);
+    if (seen.has(ref)) return false;
+    seen.add(ref);
+    return true;
+  });
 }
 
 /** Everything that points at a place: the core of "knowledge on a map". */
@@ -225,42 +299,138 @@ export function contentTitle(item: AnyContent): string {
   return item.collection === "atlas" ? `${item.city}, ${item.country}` : item.title;
 }
 
+/** One or two sentences for lists: the description, the annotation, or the start of the note. */
+export function contentSummary(item: AnyContent): string {
+  switch (item.collection) {
+    case "ideas":
+    case "experiments":
+      return item.description;
+    case "atlas":
+      return item.notes;
+    case "library":
+      return item.personalReview;
+    case "journal":
+      return item.body.replace(/[*_>#`]/g, "").slice(0, 180);
+  }
+}
+
+/** Language of a piece when it declares one, for the lang attribute. */
+export function contentLanguage(item: AnyContent): string | undefined {
+  return item.collection === "ideas" || item.collection === "journal" ? item.language : undefined;
+}
+
+/* --------------------------------------------------------- recommendations */
+
+/**
+ * "Read next" for an essay, worked out when the site is built: no model, no service, no cost.
+ * Essays that share rare topics rank above essays that share common ones, the same
+ * category adds a little, and anything already listed as a connection is left out.
+ */
+export function getRecommendations(article: Article, exclude: AnyContent[] = [], count = 3): Article[] {
+  const articles = getArticles();
+  const skip = new Set([article.slug, ...exclude.filter((c) => c.collection === "ideas").map((c) => c.slug)]);
+  const slugsOf = (a: Article) => new Set(tagsOf(a).map(tagSlug));
+  const frequency = new Map<string, number>();
+  for (const a of articles) for (const t of slugsOf(a)) frequency.set(t, (frequency.get(t) ?? 0) + 1);
+  const own = slugsOf(article);
+
+  return articles
+    .filter((a) => !skip.has(a.slug))
+    .map((a) => {
+      let score = a.category === article.category ? 0.25 : 0;
+      for (const t of slugsOf(a)) if (own.has(t)) score += Math.log(1 + articles.length / (frequency.get(t) ?? 1));
+      return { a, score };
+    })
+    .filter(({ score }) => score > 0.25)
+    .sort((x, y) => y.score - x.score || byDateDesc(x.a.publishedDate, y.a.publishedDate))
+    .slice(0, count)
+    .map(({ a }) => a);
+}
+
+/* -------------------------------------------------------------------- tags */
+
+/** Tags of any piece. Atlas themes and an experiment's category count as tags. */
+export function tagsOf(item: AnyContent): string[] {
+  const raw =
+    item.collection === "atlas" ? item.themes : item.collection === "experiments" ? [item.category, ...item.tags] : item.tags;
+  const seen = new Set<string>();
+  return raw
+    .map((t) => String(t).trim().toLowerCase())
+    .filter((t) => {
+      const slug = tagSlug(t);
+      if (!slug || seen.has(slug)) return false;
+      seen.add(slug);
+      return true;
+    });
+}
+
+/** Every tag in use, most used first. */
+export function getTags(): Tag[] {
+  const tags = new Map<string, Tag>();
+  for (const item of getAllContent()) {
+    for (const label of tagsOf(item)) {
+      const slug = tagSlug(label);
+      const tag = tags.get(slug);
+      if (tag) tag.count += 1;
+      else tags.set(slug, { slug, label, count: 1 });
+    }
+  }
+  return [...tags.values()].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+}
+
+/** Everything that carries a tag, across all sections. */
+export function getContentForTag(slug: string): { tag: Tag; items: AnyContent[] } | undefined {
+  const tag = getTags().find((t) => t.slug === slug);
+  if (!tag) return undefined;
+  return { tag, items: getAllContent().filter((item) => tagsOf(item).some((t) => tagSlug(t) === slug)) };
+}
+
 /* ------------------------------------------------------------------ search */
 
-const SECTION: Record<Collection, string> = {
-  ideas: "Ideas",
-  atlas: "Atlas",
-  experiments: "Experiments",
-  library: "Library",
-  journal: "Journal",
-  talks: "Speaking",
-};
+/** Section names in the interface language. */
+export function sectionNames(lang: Lang): Record<Collection, string> {
+  const nav = getDictionary(lang).nav;
+  return { ideas: nav.ideas, atlas: nav.nomading, experiments: nav.experiments, library: nav.library, journal: nav.journal, talks: nav.speaking };
+}
+
+/** Body text without Markdown marks, capped so the search page stays light. */
+const plainText = (body: string) =>
+  body
+    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/[#>*_`]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 6000);
 
 /** Flat index for local search today and for embeddings later. */
-export function getSearchIndex(): SearchDocument[] {
+export function getSearchIndex(lang: Lang = "en"): SearchDocument[] {
+  const SECTION = sectionNames(lang);
   return [
     ...getArticles().map((a) => ({
       title: a.title,
       description: a.description,
+      text: plainText(a.body),
       url: a.url,
       section: SECTION.ideas,
       tags: [...a.tags, a.category],
-      meta: formatDate(a.publishedDate),
+      meta: formatDate(a.publishedDate, lang),
     })),
     ...getAtlasEntries().map((p) => ({
       title: `${p.city}, ${p.country}`,
       description: p.notes,
+      text: plainText(p.body),
       url: p.url,
       section: SECTION.atlas,
-      tags: [...p.themes, "cities"],
+      tags: [...p.themes, "cities", "nomading"],
+      meta: p.visitedDate ? formatDate(p.visitedDate, lang) : undefined,
     })),
     ...getExperiments().map((e) => ({
       title: e.title,
       description: e.description,
       url: e.url,
       section: SECTION.experiments,
-      tags: [e.category, ...e.tools],
-      meta: e.status,
+      tags: [...tagsOf(e), ...e.tools],
+      meta: getDictionary(lang).experiments.statuses[e.status] ?? e.status,
     })),
     ...getLibraryItems().map((l) => ({
       title: l.title,
@@ -273,10 +443,11 @@ export function getSearchIndex(): SearchDocument[] {
     ...getJournalEntries().map((j) => ({
       title: j.title,
       description: j.body.slice(0, 180),
+      text: plainText(j.body),
       url: j.url,
       section: SECTION.journal,
       tags: j.tags,
-      meta: formatDate(j.date),
+      meta: formatDate(j.date, lang),
     })),
   ];
 }
@@ -284,7 +455,10 @@ export function getSearchIndex(): SearchDocument[] {
 /* ------------------------------------------------------------------- pages */
 
 /** Standalone pages written in MDX, e.g. src/content/about.mdx. */
-export function getPage(name: string): { data: Frontmatter; body: string } {
-  const { data, content } = matter(fs.readFileSync(path.join(ROOT, `${name}.mdx`), "utf8"));
-  return { data, body: content.trim() };
+export function getPage(name: string, lang: Lang = "en"): { data: Frontmatter; body: string; language: Lang } {
+  // about.es.mdx is the Spanish version. Without it, the English page is shown.
+  const translated = path.join(ROOT, `${name}.${lang}.mdx`);
+  const found = lang !== "en" && fs.existsSync(translated);
+  const { data, content } = matter(fs.readFileSync(found ? translated : path.join(ROOT, `${name}.mdx`), "utf8"));
+  return { data, body: content.trim(), language: found ? lang : "en" };
 }

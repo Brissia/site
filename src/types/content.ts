@@ -48,7 +48,9 @@ export interface AtlasEntry extends Base {
   businessInsights: string[];
   themes: string[];
   relatedArticles: string[];
+  /** Slugs of Experiments. */
   relatedProjects: string[];
+  related: ContentRef[];
 }
 
 export type ExperimentStatus = "idea" | "in progress" | "live" | "archived";
@@ -63,6 +65,10 @@ export interface Experiment extends Base {
   links: { label: string; url: string }[];
   screenshots: string[];
   technicalNotes?: string;
+  tags: string[];
+  related: ContentRef[];
+  /** Shown on the homepage under Projects. */
+  featured: boolean;
 }
 
 export interface LibraryItem extends Base {
@@ -76,6 +82,7 @@ export interface LibraryItem extends Base {
   personalReview: string;
   tags: string[];
   relatedIdeas: string[];
+  related: ContentRef[];
   link?: string;
 }
 
@@ -89,13 +96,37 @@ export interface JournalEntry extends Base {
   tags: string[];
   language: Language;
   wordCount: number;
+  related: ContentRef[];
+}
+
+export interface Talk {
+  slug: string;
+  title: string;
+  event: string;
+  date: string;
+  location?: string;
+  type: "Talk" | "Panel" | "Podcast" | "Interview";
+  video?: string;
+  slides?: string;
+  language: Language;
+  draft: boolean;
 }
 
 export type AnyContent = Article | AtlasEntry | Experiment | LibraryItem | JournalEntry;
 
+export interface Tag {
+  /** URL form: lowercase, no accents, hyphens. */
+  slug: string;
+  /** As written in the content. */
+  label: string;
+  count: number;
+}
+
 export interface SearchDocument {
   title: string;
   description: string;
+  /** Body text, searched but not shown. */
+  text?: string;
   url: string;
   section: string;
   tags: string[];
