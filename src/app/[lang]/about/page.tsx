@@ -21,7 +21,7 @@ export default async function AboutPage({ params }: Props) {
   const portrait = site.aboutPortrait;
   return (
     <div lang={page.language}>
-      <PageIntro label={`${t.common.chapter} 07`} title={t.nav.about} lead={String(page.data.lead ?? "")} />
+      <PageIntro label={`${t.common.chapter} 07`} title={t.nav.about} lead={page.data.lead ? String(page.data.lead) : undefined} />
       <div className="shell pb-20 md:pb-28 lg:grid lg:grid-cols-12 lg:gap-x-6">
         {portrait.src && (
           <figure className="mb-12 lg:col-span-4 lg:mb-0">

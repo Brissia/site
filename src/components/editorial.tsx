@@ -66,12 +66,12 @@ export function ArrowLink({ href, children, className = "" }: { href: string; ch
 }
 
 /** Page opening used by every section index: same room layout, different room. */
-export function PageIntro({ label, title, lead }: { label: string; title: string; lead: string }) {
+export function PageIntro({ label, title, lead }: { label: string; title: string; lead?: string }) {
   return (
     <header className="shell pb-12 pt-14 md:pb-16 md:pt-24">
       <p className="meta">{label}</p>
       <h1 className="mt-4 font-display text-[3.5rem] leading-[0.95] tracking-tight md:text-8xl">{title}</h1>
-      <p className="mt-6 max-w-xl font-display text-xl italic leading-snug text-muted md:text-2xl">{lead}</p>
+      {lead && <p className="mt-6 max-w-xl font-display text-xl italic leading-snug text-muted md:text-2xl">{lead}</p>}
     </header>
   );
 }

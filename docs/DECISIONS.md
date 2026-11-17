@@ -39,7 +39,7 @@ The three source documents disagree in a few places. This is what was chosen, wh
 - **The manifesto and the three roles stay in English in both languages.** They are treated as a signature, not as interface text. To translate them, move them into `src/i18n/dictionaries.ts`.
 - **Spanish section names**: Nomading, Ideas, Experimentos, Biblioteca, Diario, Sobre mí. Addresses stay in English (`/es/library`). All of it is one edit away in the dictionary.
 - **No automatic language detection.** A visitor gets the language of the link they opened and can switch with EN/ES in the header. Redirecting by browser language would need code running on every visit and breaks shared links.
-- **The Spanish About page** is a translation of the English draft and is marked as a draft, like the English one.
+- **The Spanish About page** is a translation of the English draft. Both are still drafts to be rewritten in her own voice, but the note saying so and the line "A narrative, not a resume" were removed from the page: they were instructions for the author, not text for visitors. A `lead` in the file's frontmatter brings an opening line back.
 - **Speaking** exists at `/speaking` and reads `src/content/talks/`. It is not in the menu and is linked from About only when there is at least one talk.
 - **Projects on the homepage** shows experiments marked `featured: true`. None is marked, so the chapter is hidden.
 
