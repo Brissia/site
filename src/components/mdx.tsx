@@ -1,6 +1,7 @@
 import { MDXRemote } from "next-mdx-remote/rsc";
 import Image from "next/image";
 import type { ComponentProps } from "react";
+import { Link } from "./link";
 
 const components = {
   // Images inside long-form: full column, black and white, lazy by default.
@@ -12,6 +13,8 @@ const components = {
     ) : null,
   a: ({ href = "", children, ...rest }: ComponentProps<"a">) => {
     const external = /^https?:\/\//.test(href);
+    // Links between pieces of the site keep the reader in their language.
+    if (href.startsWith("/")) return <Link href={href}>{children}</Link>;
     return (
       <a href={href} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})} {...rest}>
         {children}

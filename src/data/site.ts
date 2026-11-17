@@ -34,28 +34,29 @@ export const site = {
   newsletterAction: process.env.NEXT_PUBLIC_NEWSLETTER_ACTION ?? "",
 } as const;
 
-/** Rename a label here and it changes everywhere. URLs stay stable. */
+/** Order and URLs of the menu. The labels, in both languages, live in src/i18n/dictionaries.ts under "nav". */
 export const navigation = [
-  { label: "Nomading", href: "/nomading" },
-  { label: "Ideas", href: "/ideas" },
-  { label: "Experiments", href: "/experiments" },
-  { label: "Library", href: "/library" },
-  { label: "Journal", href: "/journal" },
-  { label: "About", href: "/about" },
+  { key: "nomading", href: "/nomading" },
+  { key: "ideas", href: "/ideas" },
+  { key: "experiments", href: "/experiments" },
+  { key: "library", href: "/library" },
+  { key: "journal", href: "/journal" },
+  { key: "about", href: "/about" },
 ] as const;
 
 /**
  * Homepage "Knowledge Domains". Each one resolves to a topic page or a section.
  * A /tags/<name> link needs at least one published piece with that tag; until
  * then, point it at /search?q=<name> as Fashion does.
+ * Names and notes, in both languages, live in src/i18n/dictionaries.ts under "domains".
  */
 export const domains = [
-  { name: "Growth", note: "How businesses actually expand.", href: "/tags/growth" },
-  { name: "AI", note: "Tools that change how we decide.", href: "/tags/ai" },
-  { name: "Nomading", note: "A life lived between cities.", href: "/nomading" },
-  { name: "Cities", note: "Territory as a business variable.", href: "/tags/cities" },
-  { name: "Culture", note: "Art, criticism and context.", href: "/tags/culture" },
-  { name: "Fashion", note: "What people choose to signal.", href: "/search?q=fashion" },
-  { name: "Thinking", note: "Methods before opinions.", href: "/ideas" },
-  { name: "Experiments", note: "Unfinished on purpose.", href: "/experiments" },
+  { key: "growth", href: "/tags/growth" },
+  { key: "ai", href: "/tags/ai" },
+  { key: "nomading", href: "/nomading" },
+  { key: "cities", href: "/tags/cities" },
+  { key: "culture", href: "/tags/culture" },
+  { key: "fashion", href: "/search?q=fashion" },
+  { key: "thinking", href: "/ideas" },
+  { key: "experiments", href: "/experiments" },
 ] as const;

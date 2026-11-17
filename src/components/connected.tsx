@@ -1,23 +1,14 @@
-import Link from "next/link";
+import { Link } from "@/components/link";
 import { contentLanguage, contentSummary, contentTitle } from "@/lib/content";
-import type { AnyContent, Collection } from "@/types/content";
+import { getDictionary, type Lang } from "@/i18n";
+import type { AnyContent } from "@/types/content";
 import { tagSlug } from "@/utils/format";
 
-/** What a single piece is called, as opposed to the section it lives in. */
-export const KIND: Record<Collection, string> = {
-  ideas: "Idea",
-  atlas: "Place",
-  experiments: "Experiment",
-  library: "Library",
-  journal: "Journal",
-  talks: "Talk",
-};
-
 /** Tags are doors: each one opens the page that gathers everything sharing it. */
-export function TagList({ tags, className = "" }: { tags: string[]; className?: string }) {
+export function TagList({ tags, className = "", lang = "en" }: { tags: string[]; className?: string; lang?: Lang }) {
   if (tags.length === 0) return null;
   return (
-    <ul aria-label="Topics" className={`flex flex-wrap gap-2 ${className}`}>
+    <ul aria-label={getDictionary(lang).common.topics} className={`flex flex-wrap gap-2 ${className}`}>
       {tags.map((tag) => (
         <li key={tag}>
           <Link
@@ -35,18 +26,21 @@ export function TagList({ tags, className = "" }: { tags: string[]; className?: 
 /** The closing block of every piece: where this thought leads, and what leads to it. */
 export function Connected({
   items,
-  title = "Connected to",
+  title,
   id = "connected",
+  lang = "en",
 }: {
   items: AnyContent[];
   title?: string;
   id?: string;
+  lang?: Lang;
 }) {
   if (items.length === 0) return null;
+  const t = getDictionary(lang);
   return (
     <section aria-labelledby={id}>
       <h2 id={id} className="meta">
-        {title}
+        {title ?? t.common.connected}
       </h2>
       <ul className="mt-2">
         {items.map((item) => (
@@ -55,7 +49,7 @@ export function Connected({
               <span className="font-display text-2xl leading-tight tracking-tight">
                 <span className="link-quiet decoration-transparent group-hover:decoration-foreground">{contentTitle(item)}</span>
               </span>
-              <span className="meta shrink-0">{KIND[item.collection]}</span>
+              <span className="meta shrink-0">{t.kinds[item.collection]}</span>
             </Link>
           </li>
         ))}
@@ -65,13 +59,14 @@ export function Connected({
 }
 
 /** A mixed list with a line of context per entry, used where pieces from every section meet. */
-export function ContentList({ items }: { items: AnyContent[] }) {
+export function ContentList({ items, lang = "en" }: { items: AnyContent[]; lang?: Lang }) {
+  const t = getDictionary(lang);
   return (
     <ul>
       {items.map((item) => (
         <li key={item.url} lang={contentLanguage(item)} className="border-t border-border">
           <Link href={item.url} className="group grid gap-1 py-5 md:grid-cols-12 md:gap-6">
-            <p className="meta md:col-span-2 md:pt-2">{KIND[item.collection]}</p>
+            <p className="meta md:col-span-2 md:pt-2">{t.kinds[item.collection]}</p>
             <div className="md:col-span-10">
               <h2 className="font-display text-2xl leading-tight tracking-tight md:text-3xl">
                 <span className="link-quiet decoration-transparent group-hover:decoration-foreground">{contentTitle(item)}</span>

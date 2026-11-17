@@ -30,11 +30,21 @@ Long-form. Required: `title`, `description`, `category`, `publishedDate`.
 | `relatedContent` | `collection/slug`, for example `atlas/la-paz` or `library/obviously-awesome` |
 | `references` | List of `title` and optional `url` |
 
-### Atlas: `src/content/atlas/`
+### Nomading: `src/content/atlas/`
 
-One file per city. Required: `city`, `country`, `coordinates`, `notes`.
+The section is called Nomading on the site and lives at `/nomading`; the folder keeps its original name, `atlas`, so references such as `atlas/la-paz` stay valid. One file per place. Required: `city`, `country`, `coordinates`, `notes`.
 
-`coordinates` is `[latitude, longitude]`; right-click any point in OpenStreetMap or Google Maps to copy them. `notes` is the single sentence shown on the map and on cards, so write it as the one thing that city taught you. `themes` feed the map filters: Business, Travel, Cities, Culture, Growth.
+Every stop is a card with three things: a photograph, a sentence and a date.
+
+| Field | Notes |
+|-------|-------|
+| `notes` | The sentence of the place. Shown large on the card, on the map and at the top of the page |
+| `photos` | `["/images/nomading/uyuni-01.jpg"]`. Always black and white. The first one leads the card and the page; the rest form a gallery. Without a photo the card shows the sentence alone |
+| `visitedDate` | `2025-08-14`, `2025-08` or `2025`, as precisely as you remember it. Places with a date are listed most recent first |
+| `coordinates` | `[latitude, longitude]`; right-click any point in OpenStreetMap or Google Maps to copy them |
+| `themes` | Feed the filters: Business, Travel, Cities, Culture, Growth |
+
+Text below the `---` lines appears as longer notes. If it only repeats the sentence, it is not shown twice. The three stops on the homepage are the ones with a photograph first, then the most recent.
 
 ### Journal: `src/content/journal/`
 
@@ -81,9 +91,21 @@ Tags are shared across every collection, so `/tags/cities` gathers essays, place
 - Atlas `themes` and the experiment `category` count as tags.
 - Fewer, reused tags make better pages than many tags used once.
 
-### About: `src/content/about.mdx`
+Add `featured: true` to show an experiment on the homepage under Projects (up to three). The chapter appears when at least one experiment is featured.
 
-One file. Plain Markdown with `##` headings.
+### Speaking: `src/content/talks/`
+
+Required: `title`, `event`, `date`. Optional: `location`, `type` (Talk, Panel, Podcast, Interview), `language`, `video`, `slides`. The page lives at `/speaking` and is linked from About once there is at least one talk.
+
+### About: `src/content/about.mdx` and `src/content/about.es.mdx`
+
+One file per language. Plain Markdown with `##` headings. If the Spanish file is missing, the English one is shown in both.
+
+## Two languages
+
+The interface exists in English (`/ideas`) and Spanish (`/es/ideas`). **Content is not translated**: an essay written in Spanish reads in Spanish in both. What changes is everything around it: menu, labels, dates, buttons.
+
+Every word of the interface, in both languages, lives in one file: `src/i18n/dictionaries.ts`. To rename a section or rewrite a line, change it there.
 
 ## Images
 

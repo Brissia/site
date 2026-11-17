@@ -2,6 +2,8 @@
 
 import "leaflet/dist/leaflet.css";
 import { useEffect, useRef } from "react";
+import { getDictionary, localize } from "@/i18n";
+import { useLang } from "./link";
 
 export interface MapPlace {
   slug: string;
@@ -29,6 +31,7 @@ export default function AtlasMap({
   focus?: boolean;
 }) {
   const container = useRef<HTMLDivElement>(null);
+  const lang = useLang();
   const key = places.map((p) => p.slug).join(",");
 
   useEffect(() => {
@@ -72,7 +75,7 @@ export default function AtlasMap({
         })
           .addTo(map!)
           .bindPopup(
-            `<a href="${p.url}" style="font-weight:500;text-decoration:underline;text-underline-offset:3px">${escapeHtml(
+            `<a href="${localize(p.url, lang)}" style="font-weight:500;text-decoration:underline;text-underline-offset:3px">${escapeHtml(
               `${p.city}, ${p.country}`,
             )}</a><br/><span style="opacity:.7">${escapeHtml(p.notes)}</span>`,
             { maxWidth: 240, closeButton: false },
@@ -107,13 +110,13 @@ export default function AtlasMap({
       map?.remove();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, focus]);
+  }, [key, focus, lang]);
 
   return (
     <div
       ref={container}
       role="region"
-      aria-label={`Map of ${places.length} ${places.length === 1 ? "place" : "places"}`}
+      aria-label={getDictionary(lang).nomading.map(places.length)}
       className={`atlas-map isolate z-0 w-full border border-border bg-card ${className}`}
     />
   );

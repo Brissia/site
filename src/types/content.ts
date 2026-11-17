@@ -67,6 +67,8 @@ export interface Experiment extends Base {
   technicalNotes?: string;
   tags: string[];
   related: ContentRef[];
+  /** Shown on the homepage under Projects. */
+  featured: boolean;
 }
 
 export interface LibraryItem extends Base {
@@ -97,6 +99,19 @@ export interface JournalEntry extends Base {
   related: ContentRef[];
 }
 
+export interface Talk {
+  slug: string;
+  title: string;
+  event: string;
+  date: string;
+  location?: string;
+  type: "Talk" | "Panel" | "Podcast" | "Interview";
+  video?: string;
+  slides?: string;
+  language: Language;
+  draft: boolean;
+}
+
 export type AnyContent = Article | AtlasEntry | Experiment | LibraryItem | JournalEntry;
 
 export interface Tag {
@@ -110,6 +125,8 @@ export interface Tag {
 export interface SearchDocument {
   title: string;
   description: string;
+  /** Body text, searched but not shown. */
+  text?: string;
   url: string;
   section: string;
   tags: string[];

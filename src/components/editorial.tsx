@@ -1,7 +1,8 @@
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/components/link";
 import type { ReactNode } from "react";
+import { getDictionary, type Lang } from "@/i18n";
 import type { Article } from "@/types/content";
 import { formatDate, pad2 } from "@/utils/format";
 
@@ -13,7 +14,9 @@ export function Chapter({
   link,
   children,
   id,
+  lang = "en",
 }: {
+  lang?: Lang;
   number: number;
   title: string;
   lead?: string;
@@ -25,7 +28,9 @@ export function Chapter({
     <section aria-labelledby={id} className="border-t border-border">
       <div className="shell py-16 md:py-24 lg:grid lg:grid-cols-12 lg:gap-x-6 lg:py-28">
         <header className="mb-10 lg:col-span-3 lg:mb-0">
-          <p className="meta">Chapter {pad2(number)}</p>
+          <p className="meta">
+            {getDictionary(lang).common.chapter} {pad2(number)}
+          </p>
           <h2 id={id} className="mt-3 font-display text-5xl leading-none tracking-tight md:text-6xl">
             {title}
           </h2>
@@ -107,19 +112,22 @@ export function Cover({
   );
 }
 
-export function ArticleMeta({ article }: { article: Article }) {
+export function ArticleMeta({ article, lang = "en" }: { article: Article; lang?: Lang }) {
+  const t = getDictionary(lang);
   return (
     <p className="meta flex flex-wrap gap-x-2">
-      <span>{article.category}</span>
+      <span>{t.ideas.categories[article.category] ?? article.category}</span>
       <span aria-hidden>·</span>
-      <time dateTime={article.publishedDate}>{formatDate(article.publishedDate)}</time>
+      <time dateTime={article.publishedDate}>{formatDate(article.publishedDate, lang)}</time>
       <span aria-hidden>·</span>
-      <span>{article.readingTime} min</span>
+      <span>
+        {article.readingTime} {t.common.min}
+      </span>
     </p>
   );
 }
 
-export function ArticleCard({ article, featured = false }: { article: Article; featured?: boolean }) {
+export function ArticleCard({ article, featured = false, lang = "en" }: { article: Article; featured?: boolean; lang?: Lang }) {
   return (
     <article lang={article.language}>
       <Link href={article.url} className="group block">
@@ -133,7 +141,7 @@ export function ArticleCard({ article, featured = false }: { article: Article; f
           />
         )}
         <div className={article.coverImage ? "mt-5" : "border-t border-border pt-5"}>
-          <ArticleMeta article={article} />
+          <ArticleMeta article={article} lang={lang} />
           <h3
             className={
               featured

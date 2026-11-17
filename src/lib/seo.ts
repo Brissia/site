@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { site } from "@/data/site";
+import { getDictionary, languages, localize, type Lang } from "@/i18n";
 import type { Article, AtlasEntry, LibraryItem } from "@/types/content";
 
 export const absoluteUrl = (path = "/") => `${site.url}${path.startsWith("/") ? path : `/${path}`}`;
@@ -11,16 +12,20 @@ export function pageMetadata(input: {
   image?: string;
   type?: "website" | "article";
   publishedTime?: string;
+  lang?: Lang;
 }): Metadata {
   const images = input.image ? [{ url: input.image }] : undefined;
+  const lang = input.lang ?? "en";
+  const url = localize(input.path, lang);
   return {
     title: input.title,
     description: input.description,
-    alternates: { canonical: input.path },
+    alternates: { canonical: url, languages: languageAlternates(input.path) },
     openGraph: {
       title: input.title,
       description: input.description,
-      url: input.path,
+      url,
+      locale: lang === "es" ? "es_419" : "en_US",
       siteName: site.name,
       type: input.type ?? "website",
       publishedTime: input.publishedTime,
@@ -35,15 +40,21 @@ export function pageMetadata(input: {
   };
 }
 
+/** The same page in every interface language, for search engines. */
+export const languageAlternates = (path: string) => ({
+  ...Object.fromEntries(languages.map((l) => [l, localize(path, l)])),
+  "x-default": path,
+});
+
 const sameAs = () => [site.social.linkedin, site.social.instagram].filter(Boolean);
 
-export const personSchema = () => ({
+export const personSchema = (lang: Lang = "en") => ({
   "@context": "https://schema.org",
   "@type": "Person",
   name: site.name,
   url: site.url,
   jobTitle: site.roles.join(", "),
-  description: site.description,
+  description: getDictionary(lang).description,
   homeLocation: { "@type": "Place", name: site.base },
   ...(sameAs().length ? { sameAs: sameAs() } : {}),
 });

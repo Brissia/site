@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { getDictionary } from "@/i18n";
 import AtlasMap, { type MapPlace } from "./atlas-map";
+import { useLang } from "./link";
 import { PlaceCard, type PlaceCardData } from "./place-card";
 
 export interface ExplorerPlace extends MapPlace, PlaceCardData {
@@ -9,21 +11,22 @@ export interface ExplorerPlace extends MapPlace, PlaceCardData {
 }
 
 export function AtlasExplorer({ places, themes }: { places: ExplorerPlace[]; themes: string[] }) {
+  const t = getDictionary(useLang()).nomading;
   const [theme, setTheme] = useState<string | null>(null);
   const visible = theme ? places.filter((p) => p.themes.includes(theme)) : places;
 
   return (
     <div>
-      <div role="group" aria-label="Filter places by theme" className="-mx-6 mb-6 flex gap-2 overflow-x-auto px-6 md:mx-0 md:px-0">
-        {[null, ...themes].map((t) => (
+      <div role="group" aria-label={t.filter} className="-mx-6 mb-6 flex gap-2 overflow-x-auto px-6 md:mx-0 md:px-0">
+        {[null, ...themes].map((name) => (
           <button
-            key={t ?? "all"}
+            key={name ?? "all"}
             type="button"
-            aria-pressed={theme === t}
-            onClick={() => setTheme(t)}
+            aria-pressed={theme === name}
+            onClick={() => setTheme(name)}
             className="meta shrink-0 border border-border px-3 py-2 transition-colors duration-200 ease-out hover:border-foreground aria-pressed:border-foreground aria-pressed:bg-foreground aria-pressed:text-background"
           >
-            {t ?? "All"}
+            {name ? (t.themes[name] ?? name) : t.all}
           </button>
         ))}
       </div>
@@ -38,7 +41,7 @@ export function AtlasExplorer({ places, themes }: { places: ExplorerPlace[]; the
         ))}
       </ul>
       <p aria-live="polite" className="sr-only">
-        {visible.length} places shown
+        {t.shown(visible.length)}
       </p>
     </div>
   );
