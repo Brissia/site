@@ -32,15 +32,45 @@ const isProd = process.env.NODE_ENV === "production";
 
 type Frontmatter = Record<string, unknown>;
 
-function readCollection(collection: Collection): { slug: string; data: Frontmatter; body: string }[] {
+/** slug.en.mdx and slug.es.mdx are translations of slug.mdx, never entries of their own. */
+const TRANSLATION = /\.(en|es)\.mdx?$/;
+
+/** The language a piece is written in when its file does not say. */
+const BASE_LANGUAGE: Record<Collection, Lang> = {
+  ideas: "en",
+  atlas: "en",
+  experiments: "en",
+  library: "en",
+  journal: "en",
+  talks: "es",
+  toolkit: "es",
+};
+
+/**
+ * Reads a collection. With a language, each piece is returned in that language when a translation
+ * exists next to it (slug.<lang>.mdx): the translation's fields and text replace the original's,
+ * and everything it leaves out (dates, tags, connections, coordinates) is inherited.
+ * Without a translation the original is returned, so nothing ever disappears from a language.
+ */
+function readCollection(collection: Collection, lang?: Lang): { slug: string; data: Frontmatter; body: string }[] {
   const dir = path.join(ROOT, collection);
   if (!fs.existsSync(dir)) return [];
   return fs
     .readdirSync(dir)
-    .filter((f) => /\.mdx?$/.test(f) && !f.startsWith("_"))
+    .filter((f) => /\.mdx?$/.test(f) && !f.startsWith("_") && !TRANSLATION.test(f))
     .map((file) => {
-      const { data, content } = matter(fs.readFileSync(path.join(dir, file), "utf8"));
-      return { slug: file.replace(/\.mdx?$/, ""), data, body: content.trim() };
+      const slug = file.replace(/\.mdx?$/, "");
+      const original = matter(fs.readFileSync(path.join(dir, file), "utf8"));
+      const written = (original.data.language as Lang | undefined) ?? BASE_LANGUAGE[collection];
+      const data: Frontmatter = { ...original.data, language: written };
+      let body = original.content.trim();
+      const translation = path.join(dir, `${slug}.${lang}.mdx`);
+      if (lang && lang !== written && fs.existsSync(translation)) {
+        const translated = matter(fs.readFileSync(translation, "utf8"));
+        Object.assign(data, translated.data, { language: lang, translatedFrom: written });
+        body = translated.content.trim() || body;
+      }
+      return { slug, data, body };
     });
 }
 
@@ -63,8 +93,8 @@ const date = (value: unknown): string => (value instanceof Date ? value.toISOStr
 const visible = <T extends { draft: boolean }>(items: T[]): T[] => (isProd ? items.filter((i) => !i.draft) : items);
 const byDateDesc = (a: string, b: string) => (a < b ? 1 : a > b ? -1 : 0);
 
-export function getArticles(): Article[] {
-  const items = readCollection("ideas").map(({ slug, data, body }): Article => {
+export function getArticles(lang?: Lang): Article[] {
+  const items = readCollection("ideas", lang).map(({ slug, data, body }): Article => {
     const r = <T,>(k: string) => required<T>("ideas", slug, data, k);
     return {
       slug,
@@ -72,6 +102,7 @@ export function getArticles(): Article[] {
       url: `/ideas/${slug}`,
       body,
       draft: data.draft === true,
+      translatedFrom: optional(data.translatedFrom),
       title: r("title"),
       description: r("description"),
       coverImage: optional(data.coverImage),
@@ -90,8 +121,8 @@ export function getArticles(): Article[] {
   return visible(items).sort((a, b) => byDateDesc(a.publishedDate, b.publishedDate));
 }
 
-export function getAtlasEntries(): AtlasEntry[] {
-  const items = readCollection("atlas").map(({ slug, data, body }): AtlasEntry => {
+export function getAtlasEntries(lang?: Lang): AtlasEntry[] {
+  const items = readCollection("atlas", lang).map(({ slug, data, body }): AtlasEntry => {
     const r = <T,>(k: string) => required<T>("atlas", slug, data, k);
     const coordinates = r<number[]>("coordinates");
     if (!Array.isArray(coordinates) || coordinates.length !== 2 || coordinates.some((c) => typeof c !== "number")) {
@@ -103,6 +134,7 @@ export function getAtlasEntries(): AtlasEntry[] {
       url: `/nomading/${slug}`,
       body,
       draft: data.draft === true,
+      translatedFrom: optional(data.translatedFrom),
       country: r("country"),
       city: r("city"),
       coordinates: [coordinates[0], coordinates[1]],
@@ -114,14 +146,15 @@ export function getAtlasEntries(): AtlasEntry[] {
       relatedArticles: list(data.relatedArticles),
       relatedProjects: list(data.relatedProjects),
       related: list(data.related),
+      language: optional(data.language) ?? "en",
     };
   });
   // Most recent stop first; places without a date follow, alphabetically.
   return visible(items).sort((a, b) => byDateDesc(a.visitedDate ?? "", b.visitedDate ?? "") || a.city.localeCompare(b.city));
 }
 
-export function getExperiments(): Experiment[] {
-  const items = readCollection("experiments").map(({ slug, data, body }): Experiment => {
+export function getExperiments(lang?: Lang): Experiment[] {
+  const items = readCollection("experiments", lang).map(({ slug, data, body }): Experiment => {
     const r = <T,>(k: string) => required<T>("experiments", slug, data, k);
     return {
       slug,
@@ -129,6 +162,7 @@ export function getExperiments(): Experiment[] {
       url: `/experiments/${slug}`,
       body,
       draft: data.draft === true,
+      translatedFrom: optional(data.translatedFrom),
       title: r("title"),
       description: r("description"),
       status: r("status"),
@@ -140,14 +174,15 @@ export function getExperiments(): Experiment[] {
       tags: list(data.tags),
       related: list(data.related),
       featured: data.featured === true,
+      language: optional(data.language) ?? "en",
     };
   });
   return visible(items);
 }
 
 /** Frameworks, templates and tools, in the order of their file names. */
-export function getToolkitItems(): ToolkitItem[] {
-  const items = readCollection("toolkit").map(({ slug, data, body }): ToolkitItem => {
+export function getToolkitItems(lang?: Lang): ToolkitItem[] {
+  const items = readCollection("toolkit", lang).map(({ slug, data, body }): ToolkitItem => {
     const r = <T,>(k: string) => required<T>("toolkit", slug, data, k);
     return {
       slug,
@@ -155,6 +190,7 @@ export function getToolkitItems(): ToolkitItem[] {
       url: `/toolkit/${slug}`,
       body,
       draft: data.draft === true,
+      translatedFrom: optional(data.translatedFrom),
       title: r("title"),
       description: r("description"),
       format: r("format"),
@@ -212,8 +248,8 @@ export function getTalks(): Talk[] {
   return visible(items).sort((a, b) => byDateDesc(a.date, b.date));
 }
 
-export function getLibraryItems(): LibraryItem[] {
-  const items = readCollection("library").map(({ slug, data, body }): LibraryItem => {
+export function getLibraryItems(lang?: Lang): LibraryItem[] {
+  const items = readCollection("library", lang).map(({ slug, data, body }): LibraryItem => {
     const r = <T,>(k: string) => required<T>("library", slug, data, k);
     return {
       slug,
@@ -221,6 +257,7 @@ export function getLibraryItems(): LibraryItem[] {
       url: `/library/${slug}`,
       body,
       draft: data.draft === true,
+      translatedFrom: optional(data.translatedFrom),
       title: r("title"),
       type: r("type"),
       author: r("author"),
@@ -231,13 +268,14 @@ export function getLibraryItems(): LibraryItem[] {
       relatedIdeas: list(data.relatedIdeas),
       related: list(data.related),
       link: optional(data.link),
+      language: optional(data.language) ?? "en",
     };
   });
   return visible(items).sort((a, b) => a.title.localeCompare(b.title));
 }
 
-export function getJournalEntries(): JournalEntry[] {
-  const items = readCollection("journal").map(({ slug, data, body }): JournalEntry => {
+export function getJournalEntries(lang?: Lang): JournalEntry[] {
+  const items = readCollection("journal", lang).map(({ slug, data, body }): JournalEntry => {
     const r = <T,>(k: string) => required<T>("journal", slug, data, k);
     const wordCount = countWords(body);
     if (wordCount > JOURNAL_MAX_WORDS) {
@@ -249,6 +287,7 @@ export function getJournalEntries(): JournalEntry[] {
       url: `/journal#${slug}`,
       body,
       draft: data.draft === true,
+      translatedFrom: optional(data.translatedFrom),
       title: r("title"),
       date: date(r("date")),
       location: optional(data.location),
@@ -264,30 +303,39 @@ export function getJournalEntries(): JournalEntry[] {
 
 /* ---------------------------------------------------------------- lookups */
 
-export const getArticle = (slug: string) => getArticles().find((a) => a.slug === slug);
-export const getAtlasEntry = (slug: string) => getAtlasEntries().find((a) => a.slug === slug);
-export const getExperiment = (slug: string) => getExperiments().find((e) => e.slug === slug);
-export const getLibraryItem = (slug: string) => getLibraryItems().find((l) => l.slug === slug);
-export const getToolkitItem = (slug: string) => getToolkitItems().find((t) => t.slug === slug);
+export const getArticle = (slug: string, lang?: Lang) => getArticles(lang).find((a) => a.slug === slug);
+export const getAtlasEntry = (slug: string, lang?: Lang) => getAtlasEntries(lang).find((a) => a.slug === slug);
+export const getExperiment = (slug: string, lang?: Lang) => getExperiments(lang).find((e) => e.slug === slug);
+export const getLibraryItem = (slug: string, lang?: Lang) => getLibraryItems(lang).find((l) => l.slug === slug);
+export const getToolkitItem = (slug: string, lang?: Lang) => getToolkitItems(lang).find((t) => t.slug === slug);
 
 /** Every published piece, in section order. */
-export function getAllContent(): AnyContent[] {
-  return [...getArticles(), ...getAtlasEntries(), ...getExperiments(), ...getLibraryItems(), ...getJournalEntries(), ...getToolkitItems()];
+export function getAllContent(lang?: Lang): AnyContent[] {
+  return [
+    ...getArticles(lang),
+    ...getAtlasEntries(lang),
+    ...getExperiments(lang),
+    ...getLibraryItems(lang),
+    ...getJournalEntries(lang),
+    ...getToolkitItems(lang),
+  ];
 }
 
 /* ---------------------------------------------------------- relationships */
 
 /** Human label for a location field that may be an Atlas slug or free text. */
-export function resolveLocation(location?: string): { label: string; url?: string } | undefined {
+export function resolveLocation(location?: string, lang?: Lang): { label: string; url?: string } | undefined {
   if (!location) return undefined;
-  const place = getAtlasEntry(location);
+  const place = getAtlasEntry(location, lang);
   return place ? { label: `${place.city}, ${place.country}`, url: place.url } : { label: location };
 }
 
 /** Resolves "collection/slug" references into real content, silently skipping broken ones. */
-export function resolveRefs(refs: string[], all: AnyContent[] = getAllContent()): AnyContent[] {
+export function resolveRefs(refs: string[], all: AnyContent[] | Lang = getAllContent()): AnyContent[] {
+  if (!Array.isArray(all)) all = getAllContent(all);
+  const pool = all;
   return refs
-    .map((ref) => all.find((c) => refOf(c) === ref))
+    .map((ref) => pool.find((c) => refOf(c) === ref))
     .filter((c): c is AnyContent => Boolean(c));
 }
 
@@ -323,8 +371,8 @@ function outgoingRefs(item: AnyContent): string[] {
  * either side, and shows on both: what this piece points to comes first, in
  * the order it was written, followed by everything that points back at it.
  */
-export function getConnections(item: AnyContent): AnyContent[] {
-  const all = getAllContent();
+export function getConnections(item: AnyContent, lang?: Lang): AnyContent[] {
+  const all = getAllContent(lang);
   const self = refOf(item);
   const incoming = all.filter((other) => refOf(other) !== self && outgoingRefs(other).includes(self));
   const seen = new Set<string>([self]);
@@ -337,12 +385,12 @@ export function getConnections(item: AnyContent): AnyContent[] {
 }
 
 /** Everything that points at a place: the core of "knowledge on a map". */
-export function getContentForPlace(slug: string) {
-  const place = getAtlasEntry(slug);
+export function getContentForPlace(slug: string, lang?: Lang) {
+  const place = getAtlasEntry(slug, lang);
   const explicit = new Set(place?.relatedArticles ?? []);
   return {
-    articles: getArticles().filter((a) => a.location === slug || explicit.has(a.slug)),
-    journal: getJournalEntries().filter((j) => j.location === slug),
+    articles: getArticles(lang).filter((a) => a.location === slug || explicit.has(a.slug)),
+    journal: getJournalEntries(lang).filter((j) => j.location === slug),
   };
 }
 
@@ -368,7 +416,7 @@ export function contentSummary(item: AnyContent): string {
 
 /** Language of a piece when it declares one, for the lang attribute. */
 export function contentLanguage(item: AnyContent): string | undefined {
-  return item.collection === "ideas" || item.collection === "journal" || item.collection === "toolkit" ? item.language : undefined;
+  return item.language;
 }
 
 /* --------------------------------------------------------- recommendations */
@@ -378,8 +426,8 @@ export function contentLanguage(item: AnyContent): string | undefined {
  * Essays that share rare topics rank above essays that share common ones, the same
  * category adds a little, and anything already listed as a connection is left out.
  */
-export function getRecommendations(article: Article, exclude: AnyContent[] = [], count = 3): Article[] {
-  const articles = getArticles();
+export function getRecommendations(article: Article, exclude: AnyContent[] = [], lang?: Lang, count = 3): Article[] {
+  const articles = getArticles(lang);
   const skip = new Set([article.slug, ...exclude.filter((c) => c.collection === "ideas").map((c) => c.slug)]);
   const slugsOf = (a: Article) => new Set(tagsOf(a).map(tagSlug));
   const frequency = new Map<string, number>();
@@ -431,10 +479,10 @@ export function getTags(): Tag[] {
 }
 
 /** Everything that carries a tag, across all sections. */
-export function getContentForTag(slug: string): { tag: Tag; items: AnyContent[] } | undefined {
+export function getContentForTag(slug: string, lang?: Lang): { tag: Tag; items: AnyContent[] } | undefined {
   const tag = getTags().find((t) => t.slug === slug);
   if (!tag) return undefined;
-  return { tag, items: getAllContent().filter((item) => tagsOf(item).some((t) => tagSlug(t) === slug)) };
+  return { tag, items: getAllContent(lang).filter((item) => tagsOf(item).some((t) => tagSlug(t) === slug)) };
 }
 
 /* ------------------------------------------------------------------ search */
@@ -458,7 +506,7 @@ const plainText = (body: string) =>
 export function getSearchIndex(lang: Lang = "en"): SearchDocument[] {
   const SECTION = sectionNames(lang);
   return [
-    ...getArticles().map((a) => ({
+    ...getArticles(lang).map((a) => ({
       title: a.title,
       description: a.description,
       text: plainText(a.body),
@@ -467,7 +515,7 @@ export function getSearchIndex(lang: Lang = "en"): SearchDocument[] {
       tags: [...a.tags, a.category],
       meta: formatDate(a.publishedDate, lang),
     })),
-    ...getAtlasEntries().map((p) => ({
+    ...getAtlasEntries(lang).map((p) => ({
       title: `${p.city}, ${p.country}`,
       description: p.notes,
       text: plainText(p.body),
@@ -476,7 +524,7 @@ export function getSearchIndex(lang: Lang = "en"): SearchDocument[] {
       tags: [...p.themes, "cities", "nomading"],
       meta: p.visitedDate ? formatDate(p.visitedDate, lang) : undefined,
     })),
-    ...getExperiments().map((e) => ({
+    ...getExperiments(lang).map((e) => ({
       title: e.title,
       description: e.description,
       url: e.url,
@@ -484,7 +532,7 @@ export function getSearchIndex(lang: Lang = "en"): SearchDocument[] {
       tags: [...tagsOf(e), ...e.tools],
       meta: getDictionary(lang).experiments.statuses[e.status] ?? e.status,
     })),
-    ...getLibraryItems().map((l) => ({
+    ...getLibraryItems(lang).map((l) => ({
       title: l.title,
       description: l.personalReview,
       url: l.url,
@@ -492,7 +540,7 @@ export function getSearchIndex(lang: Lang = "en"): SearchDocument[] {
       tags: [...l.tags, l.type],
       meta: l.author,
     })),
-    ...getToolkitItems().map((t) => ({
+    ...getToolkitItems(lang).map((t) => ({
       title: t.title,
       description: t.description,
       text: plainText(t.body),
@@ -500,7 +548,7 @@ export function getSearchIndex(lang: Lang = "en"): SearchDocument[] {
       section: SECTION.toolkit,
       tags: [...t.tags, t.format],
     })),
-    ...getJournalEntries().map((j) => ({
+    ...getJournalEntries(lang).map((j) => ({
       title: j.title,
       description: j.body.slice(0, 180),
       text: plainText(j.body),

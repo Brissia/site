@@ -15,8 +15,8 @@ export async function generateMetadata({ params }: Props) {
 export default async function LibraryPage({ params }: Props) {
   const lang = toLang((await params).lang);
   const t = getDictionary(lang);
-  const items = getLibraryItems();
-  const articles = getArticles();
+  const items = getLibraryItems(lang);
+  const articles = getArticles(lang);
   return (
     <>
       <PageIntro label={`${t.common.chapter} 04`} title={t.nav.library} lead={t.library.lead} />

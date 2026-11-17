@@ -13,7 +13,7 @@ export const generateStaticParams = () => getLibraryItems().map((l) => ({ slug: 
 
 export async function generateMetadata({ params }: Props) {
   const { lang, slug } = await params;
-  const item = getLibraryItem(slug);
+  const item = getLibraryItem(slug, toLang(lang));
   if (!item) return {};
   return pageMetadata({
     lang: toLang(lang),
@@ -28,9 +28,9 @@ export default async function LibraryItemPage({ params }: Props) {
   const { lang: rawLang, slug } = await params;
   const lang = toLang(rawLang);
   const t = getDictionary(lang);
-  const item = getLibraryItem(slug);
+  const item = getLibraryItem(slug, lang);
   if (!item) notFound();
-  const connections = getConnections(item);
+  const connections = getConnections(item, lang);
 
   return (
     <article>

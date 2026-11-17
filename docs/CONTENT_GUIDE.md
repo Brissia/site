@@ -135,7 +135,22 @@ One file per language. Plain Markdown with `##` headings. If the Spanish file is
 
 ## Two languages
 
-The interface exists in English (`/ideas`) and Spanish (`/es/ideas`). **Content is not translated**: an essay written in Spanish reads in Spanish in both. What changes is everything around it: menu, labels, dates, buttons.
+The whole site exists in English (`/ideas`) and Spanish (`/es/ideas`): interface and content.
+
+**Write a piece once, in the language you wrote it in**, as `slug.mdx`, with `language: "es"` or `language: "en"`. **Its translation is a second file next to it** with the other language in the name:
+
+```
+src/content/ideas/que-medir-el-2025.mdx       the original, in Spanish
+src/content/ideas/que-medir-el-2025.en.mdx    its English version
+src/content/atlas/uyuni.mdx                   the original, in English
+src/content/atlas/uyuni.es.mdx                its Spanish version
+```
+
+The translation file only needs what changes: the text fields (`title`, `description`, `notes`, `personalReview`) between the `---` lines and the translated text below them. Dates, tags, coordinates, photos and connections are taken from the original, so they are never written twice. A place can also translate `city` and `country` (Tokio, Japón), and a toolkit resource its `download`.
+
+Until a translation exists, the piece is shown in its original language in both versions. Nothing disappears.
+
+Tags are not translated: a tag is an address, and `/tags/cities` is the same page in both languages.
 
 Every word of the interface, in both languages, lives in one file: `src/i18n/dictionaries.ts`. To rename a section or rewrite a line, change it there.
 

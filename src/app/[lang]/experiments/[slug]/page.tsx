@@ -13,7 +13,7 @@ export const generateStaticParams = () => getExperiments().map((e) => ({ slug: e
 
 export async function generateMetadata({ params }: Props) {
   const { lang, slug } = await params;
-  const experiment = getExperiment(slug);
+  const experiment = getExperiment(slug, toLang(lang));
   if (!experiment) return {};
   return pageMetadata({
     lang: toLang(lang),
@@ -28,10 +28,10 @@ export default async function ExperimentPage({ params }: Props) {
   const { lang: rawLang, slug } = await params;
   const lang = toLang(rawLang);
   const t = getDictionary(lang);
-  const experiment = getExperiment(slug);
+  const experiment = getExperiment(slug, lang);
   if (!experiment) notFound();
   const status = t.experiments.statuses[experiment.status] ?? experiment.status;
-  const connections = getConnections(experiment);
+  const connections = getConnections(experiment, lang);
 
   return (
     <article>

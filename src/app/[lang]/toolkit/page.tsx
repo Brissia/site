@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props) {
 export default async function ToolkitPage({ params }: Props) {
   const lang = toLang((await params).lang);
   const t = getDictionary(lang);
-  const items = getToolkitItems();
+  const items = getToolkitItems(lang);
   const groups = [
     { id: "companies", title: t.toolkit.forCompanies, items: items.filter((i) => i.audience === "companies") },
     { id: "people", title: t.toolkit.forPeople, items: items.filter((i) => i.audience === "people") },

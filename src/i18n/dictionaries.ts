@@ -6,6 +6,10 @@ const en = {
   titleSuffix: "Places, Ideas, Growth",
   description:
     "Places, ideas and experiments by Brissia Benavente, a digital nomad and business scientist studying how technology, cities and human behavior shape growth across Latin America.",
+  hero: {
+    roles: ["Digital Nomad", "Business Scientist", "Growth & Expansion Strategist"],
+    manifesto: "Critical thinking first, then everything else.",
+  },
   nav: { nomading: "Nomading", ideas: "Ideas", experiments: "Experiments", library: "Library", journal: "Journal", about: "About", speaking: "Speaking", toolkit: "Toolkit", companies: "Companies", people: "People", timeline: "Timeline" },
   common: {
     skip: "Skip to content",
@@ -63,6 +67,8 @@ const en = {
     writtenFrom: "Written from",
     references: "References",
     firstPublished: "First published on",
+    translatedFrom: { es: "Translated from the Spanish original.", en: "Translated from the English original." },
+    readOriginal: "Read the original",
     categories: { Essay: "Essay", Article: "Article", Research: "Research", "Case Study": "Case Study", Opinion: "Opinion" } as Record<string, string>,
   },
   experiments: {
@@ -172,6 +178,10 @@ const es: Dictionary = {
   titleSuffix: "Lugares, Ideas, Growth",
   description:
     "Lugares, ideas y experimentos de Brissia Benavente, nómada digital y business scientist que estudia cómo la tecnología, las ciudades y el comportamiento humano dan forma al crecimiento en América Latina.",
+  hero: {
+    roles: ["Nómada digital", "Business Scientist", "Estratega de crecimiento y expansión"],
+    manifesto: "Primero el pensamiento crítico, después todo lo demás.",
+  },
   nav: { nomading: "Nomading", ideas: "Ideas", experiments: "Experimentos", library: "Biblioteca", journal: "Diario", about: "Sobre mí", speaking: "Charlas", toolkit: "Toolkit", companies: "Empresas", people: "Personas", timeline: "Trayectoria" },
   common: {
     skip: "Saltar al contenido",
@@ -229,6 +239,8 @@ const es: Dictionary = {
     writtenFrom: "Escrito desde",
     references: "Referencias",
     firstPublished: "Publicado originalmente en",
+    translatedFrom: { es: "Traducido del original en español.", en: "Traducido del original en inglés." },
+    readOriginal: "Leer el original",
     categories: { Essay: "Ensayo", Article: "Artículo", Research: "Investigación", "Case Study": "Caso de estudio", Opinion: "Opinión" },
   },
   experiments: {

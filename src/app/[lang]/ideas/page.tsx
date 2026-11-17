@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props) {
 export default async function IdeasPage({ params }: Props) {
   const lang = toLang((await params).lang);
   const t = getDictionary(lang);
-  const [featured, ...rest] = getArticles();
+  const [featured, ...rest] = getArticles(lang);
   return (
     <>
       <PageIntro label={`${t.common.chapter} 02`} title={t.nav.ideas} lead={t.ideas.lead} />

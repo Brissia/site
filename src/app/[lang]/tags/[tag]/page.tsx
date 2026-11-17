@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props) {
   const { lang: rawLang, tag } = await params;
   const lang = toLang(rawLang);
   const t = getDictionary(lang).tags;
-  const found = getContentForTag(tag);
+  const found = getContentForTag(tag, lang);
   if (!found) return {};
   return pageMetadata({
     title: t.metaTitle(found.tag.label),
@@ -34,7 +34,7 @@ export default async function TagPage({ params }: Props) {
   const { lang: rawLang, tag } = await params;
   const lang = toLang(rawLang);
   const t = getDictionary(lang).tags;
-  const found = getContentForTag(tag);
+  const found = getContentForTag(tag, lang);
   if (!found) notFound();
   return (
     <>

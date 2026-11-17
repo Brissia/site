@@ -1,4 +1,5 @@
 import { contentTitle, getAllContent, getConnections, getTags, tagsOf } from "@/lib/content";
+import type { Lang } from "@/i18n";
 import type { Collection } from "@/types/content";
 import { tagSlug } from "@/utils/format";
 
@@ -26,8 +27,8 @@ const SIZE = 1000;
  * Positions are worked out when the site is built, with a small force layout that always starts
  * from the same arrangement, so the drawing is plain SVG: no script, no library, same picture every time.
  */
-export function buildGraph(): Graph {
-  const items = getAllContent();
+export function buildGraph(lang?: Lang): Graph {
+  const items = getAllContent(lang);
   const tags = getTags().filter((t) => t.count > 1);
   const tagIds = new Set(tags.map((t) => t.slug));
 
@@ -55,7 +56,7 @@ export function buildGraph(): Graph {
   };
   for (const item of items) {
     const id = `${item.collection}/${item.slug}`;
-    for (const other of getConnections(item)) connect(id, `${other.collection}/${other.slug}`, true);
+    for (const other of getConnections(item, lang)) connect(id, `${other.collection}/${other.slug}`, true);
     for (const tag of tagsOf(item)) if (tagIds.has(tagSlug(tag))) connect(id, `tag/${tagSlug(tag)}`, false);
   }
 
