@@ -40,11 +40,22 @@ export default async function AboutPage({ params }: Props) {
         )}
         <div className="lg:col-span-7 lg:col-start-6">
           <Mdx source={page.body} className="[&_h2]:!mt-16 [&_h2]:!text-4xl" />
-          {getTalks().length > 0 && (
-            <div className="mt-12">
-              <ArrowLink href="/speaking">{t.nav.speaking}</ArrowLink>
-            </div>
-          )}
+          <ul lang={lang} className="mt-14 space-y-4 border-t border-border pt-10">
+            <li>
+              <ArrowLink href="/about/timeline">{t.timeline.link}</ArrowLink>
+            </li>
+            <li>
+              <ArrowLink href="/companies">{t.nav.companies}</ArrowLink>
+            </li>
+            <li>
+              <ArrowLink href="/people">{t.nav.people}</ArrowLink>
+            </li>
+            {getTalks().length > 0 && (
+              <li>
+                <ArrowLink href="/speaking">{t.nav.speaking}</ArrowLink>
+              </li>
+            )}
+          </ul>
         </div>
       </div>
     </div>

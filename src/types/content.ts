@@ -1,6 +1,6 @@
 export type Language = "es" | "en";
 
-export type Collection = "ideas" | "atlas" | "experiments" | "library" | "journal" | "talks";
+export type Collection = "ideas" | "atlas" | "experiments" | "library" | "journal" | "talks" | "toolkit";
 
 /** "collection/slug", for example "atlas/la-paz". */
 export type ContentRef = `${Collection}/${string}`;
@@ -99,6 +99,39 @@ export interface JournalEntry extends Base {
   related: ContentRef[];
 }
 
+/** A resource to use: a framework, a template, a tool. Lives at /toolkit/<slug>. */
+export interface ToolkitItem extends Base {
+  collection: "toolkit";
+  title: string;
+  description: string;
+  /** Framework | Template | Tool | List */
+  format: string;
+  /** Who it was made for. Decides whether it is listed under Companies or People. */
+  audience: "companies" | "people";
+  /** File in public/downloads, e.g. "/downloads/ice-scoring.xlsx". */
+  download?: string;
+  /** What the file is, shown on the button, e.g. "Excel". */
+  downloadLabel?: string;
+  /** For resources that live elsewhere. */
+  link?: string;
+  linkLabel?: string;
+  tags: string[];
+  related: ContentRef[];
+  language: Language;
+}
+
+export interface TimelineEntry {
+  /** "2016-11", "2016" or "2016-11-05". */
+  start: string;
+  /** Omit for something that continues today. */
+  end?: string;
+  title: string;
+  organization: string;
+  place?: string;
+  type: "work" | "volunteering" | "education" | "recognition";
+  note?: string;
+}
+
 export interface Talk {
   slug: string;
   title: string;
@@ -112,7 +145,7 @@ export interface Talk {
   draft: boolean;
 }
 
-export type AnyContent = Article | AtlasEntry | Experiment | LibraryItem | JournalEntry;
+export type AnyContent = Article | AtlasEntry | Experiment | LibraryItem | JournalEntry | ToolkitItem;
 
 export interface Tag {
   /** URL form: lowercase, no accents, hyphens. */

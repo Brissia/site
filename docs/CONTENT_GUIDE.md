@@ -97,6 +97,38 @@ Add `featured: true` to show an experiment on the homepage under Projects (up to
 
 Required: `title`, `event`, `date`. Optional: `location`, `type` (Talk, Panel, Podcast, Interview), `language`, `video`, `slides`. The page lives at `/speaking` and is linked from About once there is at least one talk.
 
+### Toolkit: `src/content/toolkit/`
+
+Frameworks, templates and tools. Required: `title`, `description`, `format` (Framework, Template, Tool, List). Each one gets a page at `/toolkit/<slug>`.
+
+| Field | Notes |
+|-------|-------|
+| `audience` | `companies` or `people`. Decides whether it is listed on the Companies or the People page |
+| `download` | A file you put in `public/downloads/`, written as `/downloads/file.pdf`. Shows a Download button |
+| `downloadLabel` | What the file is: `PDF`, `Excel` |
+| `link`, `linkLabel` | For resources that live elsewhere (a GPT, a post). Shows an Open button |
+| `tags`, `related` | Work like everywhere else: a tool can be connected to an essay |
+
+The text below the `---` lines is the resource itself, shown on the page. Tables are supported.
+
+Individual mentee workspaces (goals, tasks, applications) do not belong here: the site is public. They stay in Notion, and each one can link to the toolkit.
+
+### Companies and People: `src/content/companies.mdx`, `src/content/people.mdx`
+
+One file per language: `companies.mdx` and `people.mdx` are the English text, `companies.es.mdx` and `people.es.mdx` the Spanish. Plain Markdown with `##` and `###` headings. `related` lists essays shown beside the text. The People files also hold `testimonials` (name, country, quote). When you change one language, change the other.
+
+These pages describe how you work. By decision they carry no prices and no call-to-action buttons.
+
+### Timeline: `src/content/timeline.mdx`
+
+One line per organization under `entries`, with the last role you held there and the whole span of years. Shown at `/about/timeline`:
+
+```yaml
+- { start: 2025-05, title: "Mentor", organization: "Bridge for Billions", type: volunteering }
+```
+
+`start` and `end` take `2016-11` or `2016`; leave `end` out for what continues today. `type` is work, volunteering, education or recognition, and decides the section of the page. Optional: `place`, `note`.
+
 ### About: `src/content/about.mdx` and `src/content/about.es.mdx`
 
 One file per language. Plain Markdown with `##` headings. If the Spanish file is missing, the English one is shown in both.

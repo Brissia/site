@@ -149,7 +149,31 @@ export default async function HomePage({ params }: Props) {
         </Chapter>
       )}
 
-      <Chapter id="domains" number={3} lang={lang} title={t.home.domains} lead={t.home.domainsLead} link={{ label: t.graph.link, href: "/graph" }}>
+      <Chapter id="expertise" number={3} lang={lang} title={t.expertise.title} lead={t.expertise.lead}>
+        <ul className="grid gap-x-6 md:grid-cols-3">
+          {(
+            [
+              { href: "/companies", name: t.nav.companies, note: t.expertise.companies },
+              { href: "/people", name: t.nav.people, note: t.expertise.people },
+              { href: "/toolkit", name: t.nav.toolkit, note: t.expertise.toolkit },
+            ] as const
+          ).map((entry, i) => (
+            <li key={entry.href} className="border-t border-border py-6 md:py-0 md:pt-6">
+              <Reveal delay={i * 0.06}>
+                <Link href={entry.href} className="group block">
+                  <span className="meta">{pad2(i + 1)}</span>
+                  <span className="mt-3 block font-display text-3xl leading-none tracking-tight md:text-4xl">
+                    <span className="link-quiet decoration-transparent group-hover:decoration-foreground">{entry.name}</span>
+                  </span>
+                  <span className="mt-3 block text-[15px] leading-relaxed text-muted">{entry.note}</span>
+                </Link>
+              </Reveal>
+            </li>
+          ))}
+        </ul>
+      </Chapter>
+
+      <Chapter id="domains" number={4} lang={lang} title={t.home.domains} lead={t.home.domainsLead} link={{ label: t.graph.link, href: "/graph" }}>
         <ul className="grid grid-cols-2 border-l border-t border-border md:grid-cols-4">
           {domains.map((d, i) => (
             <li key={d.key} className="border-b border-r border-border">
@@ -171,7 +195,7 @@ export default async function HomePage({ params }: Props) {
       {projects.length > 0 && (
         <Chapter
           id="projects"
-          number={4}
+          number={5}
           lang={lang}
           title={t.projects.title}
           lead={t.projects.lead}
@@ -200,7 +224,7 @@ export default async function HomePage({ params }: Props) {
       {journal.length > 0 && (
         <Chapter
           id="journal"
-          number={projects.length > 0 ? 5 : 4}
+          number={projects.length > 0 ? 6 : 5}
           lang={lang}
           title={t.nav.journal}
           lead={t.home.journalLead}
