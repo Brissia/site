@@ -55,7 +55,7 @@ export const personSchema = (lang: Lang = "en") => ({
   url: site.url,
   jobTitle: site.roles.join(", "),
   description: getDictionary(lang).description,
-  homeLocation: { "@type": "Place", name: site.base },
+  nationality: { "@type": "Country", name: site.origin },
   ...(sameAs().length ? { sameAs: sameAs() } : {}),
 });
 

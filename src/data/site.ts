@@ -11,7 +11,8 @@ export const site = {
   manifesto: "Critical thinking first, then everything else.",
   description:
     "Places, ideas and experiments by Brissia Benavente, a digital nomad and business scientist studying how technology, cities and human behavior shape growth across Latin America.",
-  base: "La Paz, Bolivia",
+  /** Where she is from. She is a digital nomad, so the site never says where she is based. */
+  origin: "Bolivia",
   portrait: {
     src: "/images/portrait-terrace.jpg",
     alt: "Brissia Benavente seated on a terrace beside a glass wall, looking out over the hillsides of the city.",

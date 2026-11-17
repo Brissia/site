@@ -122,7 +122,7 @@ export function Header() {
               </li>
             ))}
           </ol>
-          <p className="meta mt-10">{site.base}</p>
+          <p className="meta mt-10">{site.origin}</p>
         </nav>
       </div>
     </header>
