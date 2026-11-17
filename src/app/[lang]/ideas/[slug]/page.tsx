@@ -4,7 +4,7 @@ import { ArticleMeta, Cover, JsonLd } from "@/components/editorial";
 import { Mdx } from "@/components/mdx";
 import { ScrollProgress } from "@/components/motion";
 import { Connected, TagList } from "@/components/connected";
-import { getDictionary, toLang } from "@/i18n";
+import { getDictionary, localize, toLang } from "@/i18n";
 import { getArticle, getArticles, getConnections, getRecommendations, resolveLocation, tagsOf } from "@/lib/content";
 import { articleSchema, pageMetadata } from "@/lib/seo";
 
@@ -15,7 +15,7 @@ export const generateStaticParams = () => getArticles().map((a) => ({ slug: a.sl
 
 export async function generateMetadata({ params }: Props) {
   const { lang, slug } = await params;
-  const article = getArticle(slug);
+  const article = getArticle(slug, toLang(lang));
   if (!article) return {};
   return pageMetadata({
     lang: toLang(lang),
@@ -32,12 +32,12 @@ export default async function ArticlePage({ params }: Props) {
   const { lang: rawLang, slug } = await params;
   const lang = toLang(rawLang);
   const t = getDictionary(lang);
-  const article = getArticle(slug);
+  const article = getArticle(slug, lang);
   if (!article) notFound();
 
-  const place = resolveLocation(article.location);
+  const place = resolveLocation(article.location, lang);
   // The place is already named under the title, so it is not repeated at the end.
-  const related = getConnections(article).filter((c) => !(c.collection === "atlas" && c.slug === article.location));
+  const related = getConnections(article, lang).filter((c) => !(c.collection === "atlas" && c.slug === article.location));
 
   return (
     <article lang={article.language}>
@@ -95,6 +95,15 @@ export default async function ArticlePage({ params }: Props) {
             </section>
           )}
 
+          {article.translatedFrom && (
+            <p className="meta">
+              {t.ideas.translatedFrom[article.translatedFrom]}{" "}
+              <a href={localize(article.url, article.translatedFrom)} hrefLang={article.translatedFrom} className="link-quiet text-foreground">
+                {t.ideas.readOriginal}
+              </a>
+            </p>
+          )}
+
           {article.originalUrl && (
             <p className="meta">
               {t.ideas.firstPublished}{" "}
@@ -105,7 +114,7 @@ export default async function ArticlePage({ params }: Props) {
           )}
 
           <Connected items={related} lang={lang} />
-          <Connected items={getRecommendations(article, related)} title={t.common.readNext} id="read-next" lang={lang} />
+          <Connected items={getRecommendations(article, related, lang)} title={t.common.readNext} id="read-next" lang={lang} />
         </footer>
       </div>
       <JsonLd data={articleSchema(article)} />

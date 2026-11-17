@@ -22,12 +22,12 @@ function Hero({ lang }: { lang: Lang }) {
           Benavente
         </h1>
         <div className="mt-8 text-lg leading-snug md:text-xl">
-          {site.roles.map((role) => (
+          {getDictionary(lang).hero.roles.map((role) => (
             <p key={role}>{role}</p>
           ))}
         </div>
         <span aria-hidden className="mt-8 block h-px w-14 bg-foreground" />
-        <p className="mt-8 max-w-md font-display text-2xl italic leading-snug md:text-[1.75rem]">{site.manifesto}</p>
+        <p className="mt-8 max-w-md font-display text-2xl italic leading-snug md:text-[1.75rem]">{getDictionary(lang).hero.manifesto}</p>
       </div>
 
       {/* Desktop: the photograph runs wider than its column and dissolves into the page on the left.
@@ -64,11 +64,11 @@ type Props = { params: Promise<{ lang: string }> };
 export default async function HomePage({ params }: Props) {
   const lang = toLang((await params).lang);
   const t = getDictionary(lang);
-  const [featured, ...rest] = getArticles();
-  const places = getAtlasEntries();
-  const journal = getJournalEntries().slice(0, 3);
+  const [featured, ...rest] = getArticles(lang);
+  const places = getAtlasEntries(lang);
+  const journal = getJournalEntries(lang).slice(0, 3);
   // Experiments marked "featured: true". The chapter stays hidden until there is one.
-  const projects = getExperiments().filter((e) => e.featured).slice(0, 3);
+  const projects = getExperiments(lang).filter((e) => e.featured).slice(0, 3);
   // Stops with a photograph come first, then the most recent ones. Entries still holding sample text stay off the homepage.
   const stops = places
     .filter((p) => !p.notes.startsWith("Sample"))
@@ -232,7 +232,7 @@ export default async function HomePage({ params }: Props) {
         >
           <ul className="grid gap-x-6 md:grid-cols-3">
             {journal.map((entry, i) => {
-              const place = resolveLocation(entry.location);
+              const place = resolveLocation(entry.location, lang);
               return (
                 <li key={entry.slug} lang={entry.language} className="border-t border-border py-6 md:py-0 md:pt-6">
                   <Reveal delay={i * 0.06}>

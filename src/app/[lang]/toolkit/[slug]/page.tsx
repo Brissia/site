@@ -14,7 +14,7 @@ export const generateStaticParams = () => getToolkitItems().map((t) => ({ slug: 
 
 export async function generateMetadata({ params }: Props) {
   const { lang, slug } = await params;
-  const item = getToolkitItem(slug);
+  const item = getToolkitItem(slug, toLang(lang));
   if (!item) return {};
   return pageMetadata({ lang: toLang(lang), title: item.title, description: item.description, path: item.url });
 }
@@ -26,7 +26,7 @@ export default async function ToolkitItemPage({ params }: Props) {
   const { lang: rawLang, slug } = await params;
   const lang = toLang(rawLang);
   const t = getDictionary(lang);
-  const item = getToolkitItem(slug);
+  const item = getToolkitItem(slug, lang);
   if (!item) notFound();
 
   return (
@@ -59,7 +59,7 @@ export default async function ToolkitItemPage({ params }: Props) {
         <div className="lg:col-span-8">{item.body && <Mdx source={item.body} className="!max-w-none [&>h2:first-child]:!mt-0 [&_h3]:!text-2xl" />}</div>
         <aside className="space-y-12 lg:col-span-3 lg:col-start-10 print:hidden" lang={lang}>
           <TagList tags={tagsOf(item)} lang={lang} />
-          <Connected items={getConnections(item)} lang={lang} />
+          <Connected items={getConnections(item, lang)} lang={lang} />
         </aside>
       </div>
 

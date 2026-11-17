@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props) {
 export default async function NomadingPage({ params }: Props) {
   const lang = toLang((await params).lang);
   const t = getDictionary(lang);
-  const places = getAtlasEntries().map(({ slug, city, country, coordinates, notes, url, themes, photos, visitedDate }) => ({
+  const places = getAtlasEntries(lang).map(({ slug, city, country, coordinates, notes, url, themes, photos, visitedDate }) => ({
     slug,
     city,
     country,

@@ -20,8 +20,8 @@ export function ExpertisePage({ name, lang }: { name: "companies" | "people"; la
   const t = getDictionary(lang);
   const page = getPage(name, lang);
   const language = typeof page.data.language === "string" ? page.data.language : page.language;
-  const tools = getToolkitItems().filter((item) => item.audience === name);
-  const writing = resolveRefs(Array.isArray(page.data.related) ? (page.data.related as string[]) : []);
+  const tools = getToolkitItems(lang).filter((item) => item.audience === name);
+  const writing = resolveRefs(Array.isArray(page.data.related) ? (page.data.related as string[]) : [], lang);
   const testimonials = (Array.isArray(page.data.testimonials) ? page.data.testimonials : []) as Testimonial[];
 
   return (

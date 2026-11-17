@@ -13,6 +13,10 @@ interface Base {
   body: string;
   /** Drafts are visible in development and hidden in production. */
   draft: boolean;
+  /** The language of the text being shown. */
+  language: Language;
+  /** Set when the text is a translation: the language it was written in. */
+  translatedFrom?: Language;
 }
 
 export type ArticleCategory = "Essay" | "Article" | "Research" | "Case Study" | "Opinion";

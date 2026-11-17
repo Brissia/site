@@ -16,7 +16,7 @@ export const generateStaticParams = () => getAtlasEntries().map((p) => ({ slug: 
 
 export async function generateMetadata({ params }: Props) {
   const { lang, slug } = await params;
-  const place = getAtlasEntry(slug);
+  const place = getAtlasEntry(slug, toLang(lang));
   if (!place) return {};
   return pageMetadata({ lang: toLang(lang), title: `${place.city}, ${place.country}`, description: place.notes, path: place.url, image: place.photos[0] });
 }
@@ -25,12 +25,12 @@ export default async function PlacePage({ params }: Props) {
   const { lang: rawLang, slug } = await params;
   const lang = toLang(rawLang);
   const t = getDictionary(lang);
-  const place = getAtlasEntry(slug);
+  const place = getAtlasEntry(slug, lang);
   if (!place) notFound();
-  const { articles, journal } = getContentForPlace(place.slug);
+  const { articles, journal } = getContentForPlace(place.slug, lang);
   // Ideas and notes have their own lists below; this is everything else tied to the place.
   const listed = new Set([...articles, ...journal].map((c) => c.url));
-  const connections = getConnections(place).filter((c) => !listed.has(c.url));
+  const connections = getConnections(place, lang).filter((c) => !listed.has(c.url));
 
   const [lead, ...gallery] = place.photos;
   // Many entries are only their sentence, already set large in the header. Longer notes show below.

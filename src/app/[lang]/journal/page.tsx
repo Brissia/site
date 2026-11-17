@@ -18,14 +18,14 @@ export async function generateMetadata({ params }: Props) {
 export default async function JournalPage({ params }: Props) {
   const lang = toLang((await params).lang);
   const t = getDictionary(lang);
-  const entries = getJournalEntries();
+  const entries = getJournalEntries(lang);
   return (
     <>
       <PageIntro label={`${t.common.chapter} 05`} title={t.nav.journal} lead={t.journal.lead} />
       <div className="shell pb-20 md:pb-28">
         <ol className="lg:grid lg:grid-cols-12 lg:gap-x-6">
           {entries.map((entry) => {
-            const place = resolveLocation(entry.location);
+            const place = resolveLocation(entry.location, lang);
             return (
               <li
                 key={entry.slug}

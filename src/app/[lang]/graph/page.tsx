@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props) {
 export default async function GraphPage({ params }: Props) {
   const lang = toLang((await params).lang);
   const t = getDictionary(lang);
-  const { nodes, edges, size } = buildGraph();
+  const { nodes, edges, size } = buildGraph(lang);
   const hubs = nodes
     .filter((n) => n.kind !== "tag" && n.degree > 0)
     .sort((a, b) => b.degree - a.degree || a.label.localeCompare(b.label))
