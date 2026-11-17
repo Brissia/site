@@ -14,12 +14,19 @@ The three source documents disagree in a few places. This is what was chosen, wh
 | Display typeface | Canela or Editorial New | n/a | Free infrastructure | Newsreader (open source). Canela is a commercial license | `src/fonts/README.md` |
 | Dark background | #050505, "not black, matte paper" | n/a | "OLED black" | #050505 with #101010 cards | `globals.css` |
 
-## Built beyond Phase 1
+## Phase 2, part one: pages and relationships
 
-Experiments, Library and Search belong to Phase 2 but are linked from the navigation, so each has a working first version instead of a dead link. They are index pages; individual item pages come later.
+- **Experiments and Library entries have their own pages** at `/experiments/<slug>` and `/library/<slug>`. The index pages now link to them. The old `#anchor` links on the index pages still scroll to the right entry.
+- **Connections are bidirectional.** `getConnections` in `src/lib/content.ts` reads what a piece points to and what points back at it. A connection is written once, on either side. The older fields (`location`, `relatedIdeas`, `relatedArticles`, `relatedProjects`) feed the same graph, so no existing file had to change.
+- **Topic pages** at `/tags` and `/tags/<tag>` gather every collection. Tags on essays, places, journal notes and entries link there instead of to search. Atlas `themes` and the experiment `category` count as tags.
+- **Homepage Domains** Growth, AI, Cities and Culture now open their topic page. Fashion still opens search because nothing carries that tag yet; a topic page with no content would be a 404.
+- **Journal notes do not get their own page.** They are short enough to read on the index, and the Information Architecture gives Journal a single URL. They take part in connections and topics through their anchor.
+- **No sample connections were added.** The Library and Experiments entries are still samples, and linking them to the real essays would print invented relationships on real pages. Today the essays connect to each other; the rest lights up as real entries arrive.
+- **Tags were left as written.** Spanish and English versions of the same idea (`estrategia` and `strategy`, `liderazgo` and `leadership`) are separate topics. Merging them is an editorial decision.
 
 ## Not built yet
 
+- **Experiment and Library sample entries** have no body text yet, so their pages show the description or annotation only.
 - **Language switch.** The interface is in English and each piece is published in its own language with the correct `lang` attribute. A full ES/EN interface is a Phase 2 decision because it doubles what has to be maintained.
 - **Speaking.** `src/content/talks/` and its template exist; the page does not.
 - **Featured Projects** on the homepage.

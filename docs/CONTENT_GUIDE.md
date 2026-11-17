@@ -25,7 +25,7 @@ Long-form. Required: `title`, `description`, `category`, `publishedDate`.
 | `language` | `es` or `en`. Sets the correct language for screen readers and search engines |
 | `readingTime` | Optional. Calculated when omitted |
 | `coverImage` | `/images/ideas/slug.jpg`. Black and white |
-| `tags` | Lowercase. They power search and the Domains on the homepage |
+| `tags` | Lowercase. Each tag gets its own page at `/tags/<tag>` and feeds search and the Domains on the homepage |
 | `location` | Slug of an Atlas entry. The essay then appears on that place's page |
 | `relatedContent` | `collection/slug`, for example `atlas/la-paz` or `library/obviously-awesome` |
 | `references` | List of `title` and optional `url` |
@@ -44,9 +44,42 @@ Short notes. Required: `title`, `date`. **Maximum 300 words: the build stops if 
 
 Required: `title`, `type`, `author`, `personalReview`. The annotation is mandatory by design: a resource without your reading of it is only a link.
 
+Each entry has its own page at `/library/<slug>`. The annotation opens it; anything you write below the `---` lines appears under it as longer notes. `relatedIdeas` takes slugs of Ideas, `related` takes anything else.
+
 ### Experiments: `src/content/experiments/`
 
 Required: `title`, `description`, `status` (idea, in progress, live, archived), `category`.
+
+Each experiment has its own page at `/experiments/<slug>`. Write the story below the `---` lines; `screenshots`, `links`, `technicalNotes`, `tags` and `related` are optional. The `category` already counts as a tag.
+
+## Connecting pieces
+
+Every piece ends with a "Connected to" list. **Declare a connection once, on either side, and it shows on both.** If an essay lists a book, the book's page lists the essay without you touching the book's file.
+
+Write a connection as `collection/slug`:
+
+```yaml
+related: ["library/obviously-awesome", "atlas/la-paz", "experiments/ask-brissia"]
+```
+
+| Collection | Field | Also understood |
+|------------|-------|-----------------|
+| Ideas | `relatedContent` | `location` (Atlas slug) |
+| Atlas | `related` | `relatedArticles` (Idea slugs), `relatedProjects` (Experiment slugs) |
+| Experiments | `related` | |
+| Library | `related` | `relatedIdeas` (Idea slugs) |
+| Journal | `related` | `location` (Atlas slug) |
+
+A reference to something that does not exist, or to a draft, is skipped without breaking the build. Check the page after publishing if a connection is missing: it is usually a typo in the slug.
+
+## Tags
+
+Tags are shared across every collection, so `/tags/cities` gathers essays, places, books, experiments and notes together. `/tags` lists all of them with a count.
+
+- Write them lowercase. Case and accents are ignored when matching: `Métricas` and `metricas` land on the same page.
+- `estrategia` and `strategy` are two different tags with two different pages. Pick one language per concept, or use both on purpose.
+- Atlas `themes` and the experiment `category` count as tags.
+- Fewer, reused tags make better pages than many tags used once.
 
 ### About: `src/content/about.mdx`
 

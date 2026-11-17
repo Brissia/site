@@ -24,13 +24,9 @@ export default function LibraryPage() {
                 </p>
                 <div className="mt-3 md:col-span-5 md:mt-0">
                   <h2 className="font-display text-3xl leading-tight tracking-tight">
-                    {item.link ? (
-                      <a href={item.link} target="_blank" rel="noopener noreferrer" className="link-quiet">
-                        {item.title}
-                      </a>
-                    ) : (
-                      item.title
-                    )}
+                    <Link href={item.url} className="link-quiet decoration-transparent hover:decoration-foreground">
+                      {item.title}
+                    </Link>
                   </h2>
                   <p className="mt-1 text-[15px] text-muted">{item.author}</p>
                 </div>

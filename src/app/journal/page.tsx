@@ -1,7 +1,8 @@
 import Link from "next/link";
+import { TagList } from "@/components/connected";
 import { PageIntro } from "@/components/editorial";
 import { Mdx } from "@/components/mdx";
-import { getJournalEntries, resolveLocation } from "@/lib/content";
+import { getJournalEntries, resolveLocation, tagsOf } from "@/lib/content";
 import { pageMetadata } from "@/lib/seo";
 import { formatDate } from "@/utils/format";
 
@@ -42,6 +43,7 @@ export default function JournalPage() {
                 <div className="mt-4 md:col-span-6 md:mt-0">
                   <h2 className="font-display text-3xl leading-tight tracking-tight md:text-4xl">{entry.title}</h2>
                   <Mdx source={entry.body} className="mt-4" />
+                  <TagList tags={tagsOf(entry)} className="mt-6" />
                 </div>
               </li>
             );

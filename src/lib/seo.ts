@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { site } from "@/data/site";
-import type { Article, AtlasEntry } from "@/types/content";
+import type { Article, AtlasEntry, LibraryItem } from "@/types/content";
 
 export const absoluteUrl = (path = "/") => `${site.url}${path.startsWith("/") ? path : `/${path}`}`;
 
@@ -78,4 +78,20 @@ export const creativeWorkSchema = (input: { name: string; description: string; p
   description: input.description,
   url: absoluteUrl(input.path),
   author: { "@type": "Person", name: site.name, url: site.url },
+});
+
+/** A library entry is a short review of someone else's work. */
+export const libraryItemSchema = (item: LibraryItem) => ({
+  "@context": "https://schema.org",
+  "@type": "Review",
+  url: absoluteUrl(item.url),
+  reviewBody: item.personalReview,
+  author: { "@type": "Person", name: site.name, url: site.url },
+  itemReviewed: {
+    "@type": item.type === "Book" ? "Book" : "CreativeWork",
+    name: item.title,
+    author: { "@type": "Person", name: item.author },
+    ...(item.year ? { datePublished: String(item.year) } : {}),
+    ...(item.link ? { url: item.link } : {}),
+  },
 });

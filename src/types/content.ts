@@ -48,7 +48,9 @@ export interface AtlasEntry extends Base {
   businessInsights: string[];
   themes: string[];
   relatedArticles: string[];
+  /** Slugs of Experiments. */
   relatedProjects: string[];
+  related: ContentRef[];
 }
 
 export type ExperimentStatus = "idea" | "in progress" | "live" | "archived";
@@ -63,6 +65,8 @@ export interface Experiment extends Base {
   links: { label: string; url: string }[];
   screenshots: string[];
   technicalNotes?: string;
+  tags: string[];
+  related: ContentRef[];
 }
 
 export interface LibraryItem extends Base {
@@ -76,6 +80,7 @@ export interface LibraryItem extends Base {
   personalReview: string;
   tags: string[];
   relatedIdeas: string[];
+  related: ContentRef[];
   link?: string;
 }
 
@@ -89,9 +94,18 @@ export interface JournalEntry extends Base {
   tags: string[];
   language: Language;
   wordCount: number;
+  related: ContentRef[];
 }
 
 export type AnyContent = Article | AtlasEntry | Experiment | LibraryItem | JournalEntry;
+
+export interface Tag {
+  /** URL form: lowercase, no accents, hyphens. */
+  slug: string;
+  /** As written in the content. */
+  label: string;
+  count: number;
+}
 
 export interface SearchDocument {
   title: string;

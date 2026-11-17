@@ -44,13 +44,17 @@ export const navigation = [
   { label: "About", href: "/about" },
 ] as const;
 
-/** Homepage "Knowledge Domains". Each one resolves to a tag or a section. */
+/**
+ * Homepage "Knowledge Domains". Each one resolves to a topic page or a section.
+ * A /tags/<name> link needs at least one published piece with that tag; until
+ * then, point it at /search?q=<name> as Fashion does.
+ */
 export const domains = [
-  { name: "Growth", note: "How businesses actually expand.", href: "/search?q=growth" },
-  { name: "AI", note: "Tools that change how we decide.", href: "/search?q=ai" },
+  { name: "Growth", note: "How businesses actually expand.", href: "/tags/growth" },
+  { name: "AI", note: "Tools that change how we decide.", href: "/tags/ai" },
   { name: "Atlas", note: "Knowledge, placed on a map.", href: "/atlas" },
-  { name: "Cities", note: "Territory as a business variable.", href: "/search?q=cities" },
-  { name: "Culture", note: "Art, criticism and context.", href: "/search?q=culture" },
+  { name: "Cities", note: "Territory as a business variable.", href: "/tags/cities" },
+  { name: "Culture", note: "Art, criticism and context.", href: "/tags/culture" },
   { name: "Fashion", note: "What people choose to signal.", href: "/search?q=fashion" },
   { name: "Thinking", note: "Methods before opinions.", href: "/ideas" },
   { name: "Experiments", note: "Unfinished on purpose.", href: "/experiments" },

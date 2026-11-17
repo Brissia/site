@@ -1,6 +1,7 @@
-import { JsonLd, PageIntro } from "@/components/editorial";
+import Link from "next/link";
+import { PageIntro } from "@/components/editorial";
 import { getExperiments } from "@/lib/content";
-import { creativeWorkSchema, pageMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/seo";
 import { pad2 } from "@/utils/format";
 
 const lead = "A laboratory for unfinished ideas. Some of these will work.";
@@ -17,7 +18,11 @@ export default function ExperimentsPage() {
             <li key={e.slug} id={e.slug} className="scroll-mt-24 border-t border-border py-8 md:grid md:grid-cols-12 md:gap-x-6 md:py-10">
               <p className="meta md:col-span-1 md:pt-2">{pad2(i + 1)}</p>
               <div className="mt-3 md:col-span-7 md:mt-0">
-                <h2 className="font-display text-3xl leading-tight tracking-tight md:text-4xl">{e.title}</h2>
+                <h2 className="font-display text-3xl leading-tight tracking-tight md:text-4xl">
+                  <Link href={e.url} className="link-quiet decoration-transparent hover:decoration-foreground">
+                    {e.title}
+                  </Link>
+                </h2>
                 <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-muted">{e.description}</p>
                 {e.links.length > 0 && (
                   <ul className="mt-4 flex flex-wrap gap-x-6 text-[14px]">
@@ -43,7 +48,6 @@ export default function ExperimentsPage() {
                   </>
                 )}
               </dl>
-              <JsonLd data={creativeWorkSchema({ name: e.title, description: e.description, path: e.url })} />
             </li>
           ))}
         </ol>

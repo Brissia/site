@@ -22,3 +22,13 @@ export function countWords(text: string): number {
 export function pad2(n: number): string {
   return String(n).padStart(2, "0");
 }
+
+/** "Métricas de Growth" becomes "metricas-de-growth". Tags that differ only by case or accents share a page. */
+export function tagSlug(tag: string): string {
+  return tag
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}

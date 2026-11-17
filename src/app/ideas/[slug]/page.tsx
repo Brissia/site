@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { ArticleMeta, Cover, JsonLd } from "@/components/editorial";
 import { Mdx } from "@/components/mdx";
 import { ScrollProgress } from "@/components/motion";
-import { contentTitle, getArticle, getArticles, resolveLocation, resolveRefs } from "@/lib/content";
+import { Connected, TagList } from "@/components/connected";
+import { getArticle, getArticles, getConnections, resolveLocation, tagsOf } from "@/lib/content";
 import { articleSchema, pageMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -24,20 +25,13 @@ export async function generateMetadata({ params }: Props) {
   });
 }
 
-const SECTION_LABEL: Record<string, string> = {
-  ideas: "Idea",
-  atlas: "Place",
-  experiments: "Experiment",
-  library: "Library",
-  journal: "Journal",
-};
-
 export default async function ArticlePage({ params }: Props) {
   const article = getArticle((await params).slug);
   if (!article) notFound();
 
   const place = resolveLocation(article.location);
-  const related = resolveRefs(article.relatedContent);
+  // The place is already named under the title, so it is not repeated at the end.
+  const related = getConnections(article).filter((c) => !(c.collection === "atlas" && c.slug === article.location));
 
   return (
     <article lang={article.language}>
@@ -72,20 +66,7 @@ export default async function ArticlePage({ params }: Props) {
         <Mdx source={article.body} className="mx-auto" />
 
         <footer className="mx-auto mt-16 max-w-[38rem] space-y-12">
-          {article.tags.length > 0 && (
-            <ul aria-label="Topics" className="flex flex-wrap gap-2">
-              {article.tags.map((tag) => (
-                <li key={tag}>
-                  <Link
-                    href={`/search?q=${encodeURIComponent(tag)}`}
-                    className="meta block border border-border px-3 py-2 transition-colors duration-200 ease-out hover:border-foreground hover:text-foreground"
-                  >
-                    {tag}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
+          <TagList tags={tagsOf(article)} />
 
           {article.references.length > 0 && (
             <section aria-labelledby="references">
@@ -117,25 +98,7 @@ export default async function ArticlePage({ params }: Props) {
             </p>
           )}
 
-          {related.length > 0 && (
-            <section aria-labelledby="connected">
-              <h2 id="connected" className="meta">
-                Connected to
-              </h2>
-              <ul className="mt-2">
-                {related.map((item) => (
-                  <li key={item.url} className="border-b border-border">
-                    <Link href={item.url} className="group flex items-baseline justify-between gap-6 py-4">
-                      <span className="font-display text-2xl leading-tight tracking-tight">
-                        <span className="link-quiet decoration-transparent group-hover:decoration-foreground">{contentTitle(item)}</span>
-                      </span>
-                      <span className="meta shrink-0">{SECTION_LABEL[item.collection]}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
+          <Connected items={related} />
         </footer>
       </div>
       <JsonLd data={articleSchema(article)} />

@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import AtlasMap from "@/components/atlas-map";
+import { Connected, TagList } from "@/components/connected";
 import { ArrowLink, JsonLd } from "@/components/editorial";
 import { Mdx } from "@/components/mdx";
-import { getAtlasEntries, getAtlasEntry, getContentForPlace } from "@/lib/content";
+import { getAtlasEntries, getAtlasEntry, getConnections, getContentForPlace, tagsOf } from "@/lib/content";
 import { pageMetadata, placeSchema } from "@/lib/seo";
 import { formatCoordinates, formatDate } from "@/utils/format";
 
@@ -22,6 +23,9 @@ export default async function PlacePage({ params }: Props) {
   const place = getAtlasEntry((await params).slug);
   if (!place) notFound();
   const { articles, journal } = getContentForPlace(place.slug);
+  // Ideas and notes have their own lists below; this is everything else tied to the place.
+  const listed = new Set([...articles, ...journal].map((c) => c.url));
+  const connections = getConnections(place).filter((c) => !listed.has(c.url));
 
   return (
     <article>
@@ -101,6 +105,9 @@ export default async function PlacePage({ params }: Props) {
               </ul>
             </section>
           )}
+
+          <Connected items={connections} title="Also connected" />
+          <TagList tags={tagsOf(place)} />
         </aside>
       </div>
 
