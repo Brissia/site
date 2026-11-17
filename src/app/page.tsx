@@ -1,9 +1,9 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin } from "lucide-react";
 import { ArrowLink, ArticleCard, ArticleMeta, Chapter } from "@/components/editorial";
 import { Mdx } from "@/components/mdx";
+import { PlaceCard } from "@/components/place-card";
 import { Reveal } from "@/components/motion";
 import { domains, site } from "@/data/site";
 import { getArticles, getAtlasEntries, getJournalEntries, resolveLocation } from "@/lib/content";
@@ -22,9 +22,8 @@ function Hero() {
         </h1>
         <div className="mt-8 text-lg leading-snug md:text-xl">
           {site.roles.map((role) => (
-            <p key={role}>{role}.</p>
+            <p key={role}>{role}</p>
           ))}
-          <p>{site.statement}</p>
         </div>
         <span aria-hidden className="mt-8 block h-px w-14 bg-foreground" />
         <p className="mt-8 max-w-md font-display text-2xl italic leading-snug md:text-[1.75rem]">{site.manifesto}</p>
@@ -63,17 +62,52 @@ export default function HomePage() {
   const [featured, ...rest] = getArticles();
   const places = getAtlasEntries();
   const journal = getJournalEntries().slice(0, 3);
-  const quotePlace = places.find((p) => p.slug === "tokyo") ?? places[0];
+  // Stops with a photograph come first, then the most recent ones.
+  const stops = [...places].sort((a, b) => Number(b.photos.length > 0) - Number(a.photos.length > 0)).slice(0, 3);
   const countries = new Set(places.map((p) => p.country)).size;
 
   return (
     <>
       <Hero />
 
+      {places.length > 0 && (
+        <Chapter
+          id="nomading"
+          number={1}
+          title="Nomading"
+          lead={`${places.length} places in ${countries} countries so far. A photograph, a sentence and a date from each stop.`}
+          link={{ label: "See every stop", href: "/nomading" }}
+        >
+          <AtlasMap
+            places={places.map(({ slug, city, country, coordinates, notes, url }) => ({ slug, city, country, coordinates, notes, url }))}
+            className="h-[22rem] lg:h-[28rem]"
+          />
+          <ul className="mt-12 grid gap-x-6 gap-y-12 md:grid-cols-3">
+            {stops.map((p, i) => (
+              <li key={p.slug}>
+                <Reveal delay={i * 0.06}>
+                  <PlaceCard
+                    place={{
+                      slug: p.slug,
+                      city: p.city,
+                      country: p.country,
+                      notes: p.notes,
+                      url: p.url,
+                      photo: p.photos[0],
+                      dateLabel: p.visitedDate ? formatDate(p.visitedDate) : undefined,
+                    }}
+                  />
+                </Reveal>
+              </li>
+            ))}
+          </ul>
+        </Chapter>
+      )}
+
       {featured && (
         <Chapter
           id="latest-essay"
-          number={1}
+          number={2}
           title="Ideas"
           lead="Essays and research on cities, technology, business and what comes next."
           link={{ label: "Browse all ideas", href: "/ideas" }}
@@ -103,7 +137,7 @@ export default function HomePage() {
         </Chapter>
       )}
 
-      <Chapter id="domains" number={2} title="Domains" lead="The territories this site keeps returning to. Each one is a way in.">
+      <Chapter id="domains" number={3} title="Domains" lead="The territories this site keeps returning to. Each one is a way in.">
         <ul className="grid grid-cols-2 border-l border-t border-border md:grid-cols-4">
           {domains.map((d, i) => (
             <li key={d.name} className="border-b border-r border-border">
@@ -121,40 +155,6 @@ export default function HomePage() {
           ))}
         </ul>
       </Chapter>
-
-      {places.length > 0 && (
-        <Chapter
-          id="atlas"
-          number={3}
-          title="Atlas"
-          lead={`${places.length} cities in ${countries} countries so far. Not a travel log: knowledge, placed where it was learned.`}
-          link={{ label: "Explore the map", href: "/atlas" }}
-        >
-          <div className="grid gap-10 lg:grid-cols-9 lg:gap-6">
-            <div className="lg:col-span-6">
-              <AtlasMap
-                places={places.map(({ slug, city, country, coordinates, notes, url }) => ({ slug, city, country, coordinates, notes, url }))}
-                className="h-[26rem] lg:h-[30rem]"
-              />
-            </div>
-            {quotePlace && (
-              <Reveal className="lg:col-span-3 lg:border-l lg:border-border lg:pl-6">
-                <figure className="flex h-full flex-col justify-center">
-                  <blockquote className="font-display text-3xl italic leading-[1.15] tracking-tight">
-                    &ldquo;{quotePlace.notes}&rdquo;
-                  </blockquote>
-                  <figcaption className="mt-6">
-                    <Link href={quotePlace.url} className="meta inline-flex items-center gap-2 hover:text-foreground">
-                      <MapPin aria-hidden strokeWidth={1.25} className="size-4" />
-                      {quotePlace.city}, {quotePlace.country}
-                    </Link>
-                  </figcaption>
-                </figure>
-              </Reveal>
-            )}
-          </div>
-        </Chapter>
-      )}
 
       {journal.length > 0 && (
         <Chapter

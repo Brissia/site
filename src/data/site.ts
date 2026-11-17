@@ -6,11 +6,11 @@ export const site = {
   name: "Brissia Benavente",
   url: (process.env.NEXT_PUBLIC_SITE_URL ?? "https://brissiabenavente.com").replace(/\/$/, ""),
   locale: "en",
-  roles: ["Business Scientist", "Growth & Expansion Strategist"],
+  roles: ["Digital Nomad", "Business Scientist", "Growth & Expansion Strategist"],
   statement: "Building better businesses across Latin America.",
   manifesto: "Critical thinking first, then everything else.",
   description:
-    "Ideas, places and experiments by Brissia Benavente, a business scientist studying how technology, cities and human behavior shape growth across Latin America.",
+    "Places, ideas and experiments by Brissia Benavente, a digital nomad and business scientist studying how technology, cities and human behavior shape growth across Latin America.",
   base: "La Paz, Bolivia",
   portrait: {
     src: "/images/portrait-terrace.jpg",
@@ -36,8 +36,8 @@ export const site = {
 
 /** Rename a label here and it changes everywhere. URLs stay stable. */
 export const navigation = [
+  { label: "Nomading", href: "/nomading" },
   { label: "Ideas", href: "/ideas" },
-  { label: "Atlas", href: "/atlas" },
   { label: "Experiments", href: "/experiments" },
   { label: "Library", href: "/library" },
   { label: "Journal", href: "/journal" },
@@ -52,7 +52,7 @@ export const navigation = [
 export const domains = [
   { name: "Growth", note: "How businesses actually expand.", href: "/tags/growth" },
   { name: "AI", note: "Tools that change how we decide.", href: "/tags/ai" },
-  { name: "Atlas", note: "Knowledge, placed on a map.", href: "/atlas" },
+  { name: "Nomading", note: "A life lived between cities.", href: "/nomading" },
   { name: "Cities", note: "Territory as a business variable.", href: "/tags/cities" },
   { name: "Culture", note: "Art, criticism and context.", href: "/tags/culture" },
   { name: "Fashion", note: "What people choose to signal.", href: "/search?q=fashion" },

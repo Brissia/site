@@ -9,7 +9,7 @@ type Props = { params: Promise<{ tag: string }> };
 export const dynamicParams = false;
 export const generateStaticParams = () => getTags().map((t) => ({ tag: t.slug }));
 
-const SECTIONS = { ideas: "Ideas", atlas: "Atlas", experiments: "Experiments", library: "Library", journal: "Journal", talks: "Speaking" };
+const SECTIONS = { ideas: "Ideas", atlas: "Nomading", experiments: "Experiments", library: "Library", journal: "Journal", talks: "Speaking" };
 
 function describe(found: NonNullable<ReturnType<typeof getContentForTag>>): string {
   const sections = [...new Set(found.items.map((i) => SECTIONS[i.collection]))];

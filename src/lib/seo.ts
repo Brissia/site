@@ -68,6 +68,7 @@ export const placeSchema = (p: AtlasEntry) => ({
   name: `${p.city}, ${p.country}`,
   description: p.notes,
   url: absoluteUrl(p.url),
+  ...(p.photos[0] ? { image: absoluteUrl(p.photos[0]) } : {}),
   geo: { "@type": "GeoCoordinates", latitude: p.coordinates[0], longitude: p.coordinates[1] },
 });
 

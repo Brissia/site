@@ -1,12 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import AtlasMap, { type MapPlace } from "./atlas-map";
+import { PlaceCard, type PlaceCardData } from "./place-card";
 
-export interface ExplorerPlace extends MapPlace {
+export interface ExplorerPlace extends MapPlace, PlaceCardData {
   themes: string[];
-  coordinatesLabel: string;
 }
 
 export function AtlasExplorer({ places, themes }: { places: ExplorerPlace[]; themes: string[] }) {
@@ -31,19 +30,10 @@ export function AtlasExplorer({ places, themes }: { places: ExplorerPlace[]; the
 
       <AtlasMap places={visible} className="h-[55vh] min-h-80 md:h-[68vh]" />
 
-      <ul className="mt-12 grid gap-x-6 md:grid-cols-2">
+      <ul className="mt-14 grid gap-x-6 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
         {visible.map((p) => (
-          <li key={p.slug} className="border-t border-border">
-            <Link href={p.url} className="group block py-6">
-              <p className="meta">{p.coordinatesLabel}</p>
-              <h2 className="mt-2 font-display text-4xl leading-none tracking-tight">
-                {p.city}
-                <span className="text-muted">, {p.country}</span>
-              </h2>
-              <p className="mt-3 max-w-md text-[15px] leading-relaxed text-muted transition-colors duration-200 ease-out group-hover:text-foreground">
-                {p.notes}
-              </p>
-            </Link>
+          <li key={p.slug}>
+            <PlaceCard place={p} />
           </li>
         ))}
       </ul>

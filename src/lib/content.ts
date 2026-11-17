@@ -96,7 +96,7 @@ export function getAtlasEntries(): AtlasEntry[] {
     return {
       slug,
       collection: "atlas",
-      url: `/atlas/${slug}`,
+      url: `/nomading/${slug}`,
       body,
       draft: data.draft === true,
       country: r("country"),
@@ -112,7 +112,8 @@ export function getAtlasEntries(): AtlasEntry[] {
       related: list(data.related),
     };
   });
-  return visible(items).sort((a, b) => a.city.localeCompare(b.city));
+  // Most recent stop first; places without a date follow, alphabetically.
+  return visible(items).sort((a, b) => byDateDesc(a.visitedDate ?? "", b.visitedDate ?? "") || a.city.localeCompare(b.city));
 }
 
 export function getExperiments(): Experiment[] {
@@ -337,7 +338,7 @@ export function getContentForTag(slug: string): { tag: Tag; items: AnyContent[] 
 
 const SECTION: Record<Collection, string> = {
   ideas: "Ideas",
-  atlas: "Atlas",
+  atlas: "Nomading",
   experiments: "Experiments",
   library: "Library",
   journal: "Journal",
@@ -360,7 +361,8 @@ export function getSearchIndex(): SearchDocument[] {
       description: p.notes,
       url: p.url,
       section: SECTION.atlas,
-      tags: [...p.themes, "cities"],
+      tags: [...p.themes, "cities", "nomading"],
+      meta: p.visitedDate ? formatDate(p.visitedDate) : undefined,
     })),
     ...getExperiments().map((e) => ({
       title: e.title,

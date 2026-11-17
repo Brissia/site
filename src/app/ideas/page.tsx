@@ -10,7 +10,7 @@ export default function IdeasPage() {
   const [featured, ...rest] = getArticles();
   return (
     <>
-      <PageIntro label="Chapter 01" title="Ideas" lead={lead} />
+      <PageIntro label="Chapter 02" title="Ideas" lead={lead} />
       <div className="shell pb-20 md:pb-28">
         {featured ? (
           <>

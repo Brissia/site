@@ -3,7 +3,7 @@ import { getArticles, getAtlasEntries, getExperiments, getLibraryItems, getTags 
 import { absoluteUrl } from "@/lib/seo";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const sections = ["/", "/ideas", "/atlas", "/experiments", "/library", "/journal", "/about", "/tags"].map((path) => ({
+  const sections = ["/", "/nomading", "/ideas", "/experiments", "/library", "/journal", "/about", "/tags"].map((path) => ({
     url: absoluteUrl(path),
     changeFrequency: "weekly" as const,
     priority: path === "/" ? 1 : 0.7,

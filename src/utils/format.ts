@@ -1,8 +1,13 @@
 const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
-/** "2026-10-20" becomes "OCT 20, 2026". Parsed by hand to avoid timezone drift. */
+/**
+ * "2026-10-20" becomes "OCT 20, 2026", "2026-10" becomes "OCT 2026" and "2026" stays "2026",
+ * so a place can carry the date as precisely as it is remembered.
+ * Parsed by hand to avoid timezone drift.
+ */
 export function formatDate(iso: string): string {
   const [y, m, d] = iso.slice(0, 10).split("-").map(Number);
+  if (y && m && !d && MONTHS[m - 1]) return `${MONTHS[m - 1]} ${y}`;
   if (!y || !m || !d) return iso;
   return `${MONTHS[m - 1]} ${String(d).padStart(2, "0")}, ${y}`;
 }
