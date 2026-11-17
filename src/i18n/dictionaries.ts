@@ -131,6 +131,7 @@ const en = {
     companiesLead: "How I work with startups and companies on growth and strategy.",
     peopleLead: "A mentoring program for people looking for work that matches their ambition.",
     testimonials: "In their words",
+    translated: "Translated from Spanish.",
     resources: "Resources for this work",
     writing: "Writing on this",
   },
@@ -144,10 +145,10 @@ const en = {
     formats: {} as Record<string, string>,
   },
   timeline: {
-    lead: "The record behind the story: work, mentoring, volunteering and study, most recent first.",
+    lead: "The record behind the story: work, volunteering and study, most recent first.",
     present: "Present",
     link: "See the timeline",
-    types: { work: "Work", mentoring: "Mentoring", volunteering: "Volunteering", education: "Education", recognition: "Recognition" },
+    sections: { work: "Work", volunteering: "Volunteering", education: "Education and recognition" },
   },
   footer: {
     title: "Let’s stay in touch.",
@@ -296,6 +297,7 @@ const es: Dictionary = {
     companiesLead: "Cómo trabajo con startups y empresas en sus retos de growth y estrategia.",
     peopleLead: "Un programa de mentoring para personas que buscan un trabajo a la altura de su ambición.",
     testimonials: "En sus palabras",
+    translated: "Traducido del español.",
     resources: "Recursos para este trabajo",
     writing: "Lo que he escrito sobre esto",
   },
@@ -309,10 +311,10 @@ const es: Dictionary = {
     formats: { Template: "Plantilla", Tool: "Herramienta", List: "Lista" },
   },
   timeline: {
-    lead: "El registro detrás de la historia: trabajo, mentoring, voluntariado y formación, de lo más reciente a lo más antiguo.",
+    lead: "El registro detrás de la historia: trabajo, voluntariado y formación, de lo más reciente a lo más antiguo.",
     present: "Actualidad",
     link: "Ver la trayectoria",
-    types: { work: "Trabajo", mentoring: "Mentoring", volunteering: "Voluntariado", education: "Formación", recognition: "Reconocimiento" },
+    sections: { work: "Trabajo", volunteering: "Voluntariado", education: "Formación y reconocimientos" },
   },
   footer: {
     title: "Sigamos en contacto.",

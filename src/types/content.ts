@@ -128,7 +128,7 @@ export interface TimelineEntry {
   title: string;
   organization: string;
   place?: string;
-  type: "work" | "mentoring" | "volunteering" | "education" | "recognition";
+  type: "work" | "volunteering" | "education" | "recognition";
   note?: string;
 }
 

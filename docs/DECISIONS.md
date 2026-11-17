@@ -55,13 +55,13 @@ Built without any paid service, model or account. Everything is worked out when 
 
 - **Companies (Empresas) and People (Personas)** hold what was on the Notion pages "Mis Servicios" and "Programa de Mentoring", as a record of expertise rather than an offer. The text is hers. Removed on purpose: the booking buttons, the "if you ticked a box, let's have a call" line and the FAQ entry that only linked to the calendar. No prices.
 - **They are not in the menu.** They are reached from the Expertise chapter on the homepage and from About. Adding them to the menu is one line each in `navigation` in `src/data/site.ts`.
-- **Their text is Spanish in both interface languages**, like every other piece of content.
+- **Each has an English and a Spanish text** (`companies.mdx` and `companies.es.mdx`, `people.mdx` and `people.es.mdx`). The Spanish is hers; the English was written from it to read naturally, not word for word. The testimonials are translated in the English version and marked as translated. Toolkit resources remain in Spanish.
 - **Testimonials** show name, country and quote. The photographs on the Notion page were not imported.
 - **Toolkit** at `/toolkit`: Bullseye Framework (PDF), ICE Scoring (Excel) and Dashboard de Experimentación (Excel) for companies; BriGPT and the remote job sites list for people, as links. The PDF is the site page itself, printed; the two Excel files were built from the Notion tables. Toolkit entries take part in connections, topics, search and the map of ideas.
 - **In the Excel templates** the funnel stages are spelled Awareness and Referral (Notion had "Awarness" and "Referals"), and ICE Score is the average of the three scores, as the written formula says, although the heading reads Impact × Confidence × Ease.
 - **The Bullseye diagram image** from Notion was not imported.
 - **Mentee workspaces stay in Notion.** They hold a named person's goals, tasks and job applications, and the site has no login.
-- **Timeline** at `/about/timeline`, from the LinkedIn profile and its volunteering section. Every entry has the same weight. JCI is one entry, 2016 to 2021, with the three roles in it.
+- **Timeline** at `/about/timeline`, from the LinkedIn profile and its volunteering section, in three sections: Work, Volunteering, Education and recognition. One entry per organization, showing the last role held and the full span of years there (DATEC LATAM, Grupo Larcos, JCI as Past President 2016 to 2021). Bridge for Billions and the Cherie Blair Foundation are under Volunteering; Aceleratec and Nova are under Work, as on LinkedIn. A line draws itself as the page scrolls and each role arrives as the line reaches it; with "reduce motion" on, everything is shown at once.
 
 ## Not built yet
 

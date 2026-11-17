@@ -115,19 +115,19 @@ Individual mentee workspaces (goals, tasks, applications) do not belong here: th
 
 ### Companies and People: `src/content/companies.mdx`, `src/content/people.mdx`
 
-One file each, plain Markdown with `##` and `###` headings. `related` lists essays shown beside the text. `people.mdx` also holds `testimonials` (name, country, quote). Add `companies.es.mdx` or `people.es.mdx` only if you want a different text per language; today the same text is shown in both.
+One file per language: `companies.mdx` and `people.mdx` are the English text, `companies.es.mdx` and `people.es.mdx` the Spanish. Plain Markdown with `##` and `###` headings. `related` lists essays shown beside the text. The People files also hold `testimonials` (name, country, quote). When you change one language, change the other.
 
 These pages describe how you work. By decision they carry no prices and no call-to-action buttons.
 
 ### Timeline: `src/content/timeline.mdx`
 
-One line per role under `entries`, shown at `/about/timeline`:
+One line per organization under `entries`, with the last role you held there and the whole span of years. Shown at `/about/timeline`:
 
 ```yaml
-- { start: 2025-05, title: "Mentor", organization: "Bridge for Billions", type: mentoring }
+- { start: 2025-05, title: "Mentor", organization: "Bridge for Billions", type: volunteering }
 ```
 
-`start` and `end` take `2016-11` or `2016`; leave `end` out for what continues today. `type` is work, mentoring, volunteering, education or recognition. Optional: `place`, `note`.
+`start` and `end` take `2016-11` or `2016`; leave `end` out for what continues today. `type` is work, volunteering, education or recognition, and decides the section of the page. Optional: `place`, `note`.
 
 ### About: `src/content/about.mdx` and `src/content/about.es.mdx`
 

@@ -75,6 +75,7 @@ export function ExpertisePage({ name, lang }: { name: "companies" | "people"; la
                 </li>
               ))}
             </ul>
+            {page.data.testimonialsTranslated === true && <p className="meta mt-10">{t.expertise.translated}</p>}
           </div>
         </section>
       )}
