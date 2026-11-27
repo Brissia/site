@@ -32,7 +32,8 @@ export const site = {
     email: "brissia.benavente@gmail.com",
     calendar: "",
   },
-  newsletterAction: process.env.NEXT_PUBLIC_NEWSLETTER_ACTION ?? "",
+  /** Kit form "Newsletter site". Override with NEXT_PUBLIC_NEWSLETTER_ACTION if the form changes. */
+  newsletterAction: process.env.NEXT_PUBLIC_NEWSLETTER_ACTION || "https://app.kit.com/forms/10251338/subscriptions",
 } as const;
 
 /** Order and URLs of the menu. The labels, in both languages, live in src/i18n/dictionaries.ts under "nav". */

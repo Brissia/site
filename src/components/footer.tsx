@@ -1,10 +1,10 @@
 import { ArrowUp } from "lucide-react";
 import { site } from "@/data/site";
 import { getDictionary, type Lang } from "@/i18n";
+import { NewsletterForm } from "./newsletter-form";
 
 export function Newsletter({ lang = "en" }: { lang?: Lang }) {
   const t = getDictionary(lang).footer;
-  const enabled = Boolean(site.newsletterAction);
   return (
     <section aria-labelledby="newsletter-title" className="border-t border-border">
       <div className="shell grid gap-8 py-16 md:grid-cols-2 md:items-end md:py-24">
@@ -16,29 +16,9 @@ export function Newsletter({ lang = "en" }: { lang?: Lang }) {
             {t.text}
           </p>
         </div>
-        <form action={site.newsletterAction || undefined} method="post" target="_blank" className="w-full md:justify-self-end md:max-w-md">
-          <fieldset disabled={!enabled} className="flex flex-col gap-3 sm:flex-row">
-            <label htmlFor="newsletter-email" className="sr-only">
-              {t.emailLabel}
-            </label>
-            <input
-              id="newsletter-email"
-              name="email"
-              type="email"
-              required
-              autoComplete="email"
-              placeholder={t.placeholder}
-              className="h-12 w-full shrink-0 rounded-none sm:flex-1 sm:shrink border border-border bg-transparent px-4 text-[15px] transition-colors duration-200 ease-out placeholder:text-muted hover:border-muted focus:border-foreground focus:outline-none"
-            />
-            <button
-              type="submit"
-              className="h-12 shrink-0 bg-foreground px-6 text-[14px] font-medium text-background transition-opacity duration-200 ease-out hover:opacity-85 disabled:opacity-40"
-            >
-              {t.subscribe}
-            </button>
-          </fieldset>
-          {!enabled && <p className="meta mt-3">{t.soon}</p>}
-        </form>
+        <div className="w-full md:max-w-md md:justify-self-end">
+          <NewsletterForm lang={lang} idPrefix="newsletter" />
+        </div>
       </div>
     </section>
   );

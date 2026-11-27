@@ -6,6 +6,7 @@ import { JsonLd } from "@/components/editorial";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { MotionProvider } from "@/components/motion";
+import { NewsletterPopup } from "@/components/newsletter-popup";
 import { themeScript } from "@/components/theme";
 import { site } from "@/data/site";
 import { getDictionary, isLang, languages, localize, toLang } from "@/i18n";
@@ -59,6 +60,7 @@ export default async function LanguageLayout({ children, params }: Props) {
             {children}
           </main>
           <Footer lang={lang} />
+          <NewsletterPopup />
         </MotionProvider>
         <JsonLd data={personSchema(lang)} />
         <Analytics />

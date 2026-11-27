@@ -24,12 +24,11 @@ Nothing in the code depends on Vercel. It is a standard Next.js app and runs on 
 
 ## 4. Newsletter
 
-The form posts directly to the provider, so there is no backend to run.
+The newsletter runs on Kit (form "Newsletter site", id 10251338). Both the footer form and the popup post straight to Kit through a hidden iframe, so there is no backend and the visitor never leaves the page. New subscribers land in that form in Kit, which sends its confirmation email.
 
-- **Buttondown**: set `NEXT_PUBLIC_NEWSLETTER_ACTION=https://buttondown.com/api/emails/embed-subscribe/<username>`.
-- **Beehiiv**: use the form action URL from its embed settings. If Beehiiv only offers an iframe or script embed on your plan, replace the `<form>` in `src/components/footer.tsx` with it.
-
-Until the variable is set the form is disabled and shows "Opens soon".
+- The endpoint lives in `src/data/site.ts` (`newsletterAction`). To use another form, set `NEXT_PUBLIC_NEWSLETTER_ACTION=https://app.kit.com/forms/<form id>/subscriptions` in Vercel.
+- **Popup** (`src/components/newsletter-popup.tsx`): appears after 60 seconds of reading, counted across pages in the same visit and only while the tab is visible. It is a card in the corner (a bottom sheet on mobile), not a modal: it does not block the page or take focus, and closes with Esc. After "close" it stays quiet for 30 days in that browser; after subscribing, it never shows again. `DELAY_SECONDS` and `QUIET_DAYS` at the top of the file change both.
+- Texts in both languages: `footer` and `popup` in `src/i18n/dictionaries.ts`.
 
 ## 5. Analytics
 
